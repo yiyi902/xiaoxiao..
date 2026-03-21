@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>💕 我们的小窝</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(160deg, #0a0e27 0%, #1a1040 40%, #2d1b69 100%);
+    min-height: 100vh;
+    color: #e0d6f2;
+    overflow-x: hidden;
+  }
+
+  /* 星空背景 */
+  .stars {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .star {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--duration) ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
+  }
+
+  /* 头部 */
+  .header {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 40px 20px 20px;
+  }
+  .header .couple-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-size: 22px;
+    color: #f0e6ff;
+    font-weight: 600;
+    letter-spacing: 2px;
+  }
+  .header .subtitle {
+    font-size: 12px;
+    color: #a78bfa;
+    margin-top: 6px;
+  }
+  .day-counter {
+    display: inline-block;
+    background: rgba(167, 139, 250, 0.15);
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    border-radius: 20px;
+    padding: 6px 16px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #c4b5fd;
+  }
+  .day-counter strong {
+    color: #f9a8d4;
+    font-size: 18px;
+    margin: 0 4px;
+  }
+
+  /* 导航栏 */
+  .nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0; right: 0;
+    background: rgba(15, 10, 40, 0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(167, 139, 250, 0.15);
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+    z-index: 100;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: #7c6fa0;
+    font-size: 10px;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: all 0.3s;
+  }
+  .nav-item.active { color: #c4b5fd; }
+  .nav-item .nav-icon { font-size: 22px; }
+
+  /* 页面容器 */
+  .page {
+    display: none;
+    position: relative;
+    z-index: 1;
+    padding: 15px 15px 80px;
+    animation: fadeIn 0.3s ease;
+  }
+  .page.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 卡片样式 */
+  .card {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 12px;
+  }
+
+  /* 消息气泡 */
+  .msg-bubble {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    word-break: break-word;
+  }
+  .msg-left {
+    background: rgba(167, 139, 250, 0.15);
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    border-bottom-left-radius: 4px;
+    margin-right: auto;
+  }
+  .msg-right {
+    background: rgba(249, 168, 212, 0.15);
+    border: 1px solid rgba(249, 168, 212, 0.2);
+    border-bottom-right-radius: 4px;
+    margin-left: auto;
+  }
+  .msg-time {
+    font-size: 10px;
+    color: #7c6fa0;
+    margin-top: 4px;
+  }
+  .msg-sender {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .msg-left .msg-sender { color: #a78bfa; }
+  .msg-right .msg-sender { color: #f9a8d4; }
+
+  /* 输入区域 */
+  .input-area {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    position: sticky;
+    bottom: 70px;
+    background: rgba(15, 10, 40, 0.9);
+    padding: 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .input-area input, .input-area textarea {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 10px 14px;
+    color: #e0d6f2;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+  }
+  .input-area input::placeholder, .input-area textarea::placeholder {
+    color: #7c6fa0;
+  }
+  .input-area input:focus, .input-area textarea:focus {
+    border-color: rgba(167, 139, 250, 0.4);
+  }
+  .send-btn {
+    background: linear-gradient(135deg, #a78bfa, #7c3aed);
+    border: none;
+    border-radius: 12px;
+    padding: 10px 16px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s;
+  }
+  .send-btn:active { transform: scale(0.95); }
+
+  /* 碎碎念 */
+  .note-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .note-content { font-size: 14px; line-height: 1.6; }
+  .note-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    font-size: 11px;
+    color: #7c6fa0;
+  }
+  .note-delete {
+    background: none;
+    border: none;
+    color: #7c6fa0;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  /* 经期 */
+  .period-status {
+    text-align: center;
+    padding: 20px;
+  }
+  .period-icon { font-size: 50px; margin-bottom: 10px; }
+  .period-main { font-size: 20px; font-weight: 600; color: #f9a8d4; }
+  .period-sub { font-size: 13px; color: #a78bfa; margin-top: 6px; }
+  .period-btn-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    justify-content: center;
+  }
+  .period-btn {
+    background: rgba(249, 168, 212, 0.15);
+    border: 1px solid rgba(249, 168, 212, 0.3);
+    border-radius: 12px;
+    padding: 10px 20px;
+    color: #f9a8d4;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .period-btn.end {
+    background: rgba(167, 139, 250, 0.15);
+    border-color: rgba(167, 139, 250, 0.3);
+    color: #a78bfa;
+  }
+  .period-history {
+    margin-top: 15px;
+  }
+  .period-record {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+
+  /* 时间线 */
+  .timeline-item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 15px;
+  }
+  .timeline-dot-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .timeline-dot {
+    width: 12px; height: 12px;
+    background: #a78bfa;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .timeline-line {
+    width: 2px;
+    flex: 1;
+    background: rgba(167, 139, 250, 0.2);
+  }
+  .timeline-content {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .timeline-date {
+    font-size: 11px;
+    color: #a78bfa;
+    margin-bottom: 6px;
+  }
+  .timeline-text { font-size: 14px; line-height: 1.5; }
+  .timeline-delete {
+    background: none;
+    border: none;
+    color: #7c6fa0;
+    cursor: pointer;
+    font-size: 12px;
+    margin-top: 6px;
+  }
+/* 备忘 */
+  .memo-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    margin-bottom: 8px;
+  }
+  .memo-check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid #a78bfa;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 12px;
+    color: transparent;
+    transition: all 0.3s;
+  }
+  .memo-check.checked {
+    background: #a78bfa;
+    color: white;
+  }
+  .memo-text { flex: 1; font-size: 14px; }
+  .memo-text.done { text-decoration: line-through; opacity: 0.4; }
+  .memo-delete {
+    background: none;
+    border: none;
+    color: #7c6fa0;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  /* 小游戏 */
+  .game-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .game-card {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .game-card:active { transform: scale(0.96); }
+  .game-card .game-icon { font-size: 36px; margin-bottom: 8px; }
+  .game-card .game-name { font-size: 13px; color: #c4b5fd; }
+
+  /* 游戏面板 */
+  .game-panel {
+    display: none;
+    text-align: center;
+  }
+  .game-panel.active { display: block; }
+  .game-panel h3 {
+    font-size: 18px;
+    color: #c4b5fd;
+    margin-bottom: 15px;
+  }
+  .game-result {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 20px;
+    margin: 15px 0;
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 60px;
+  }
+  .game-action-btn {
+    background: linear-gradient(135deg, #a78bfa, #7c3aed);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    margin: 5px;
+  }
+  .game-back-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 8px 20px;
+    color: #a78bfa;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 15px;
+  }
+
+  /* 照片墙 */
+  .photo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 4px;
+  }
+  .photo-item {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+  }
+  .photo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .photo-upload-btn {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    border: 2px dashed rgba(167, 139, 250, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #7c6fa0;
+    font-size: 30px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .photo-upload-btn span { font-size: 11px; margin-top: 4px; }
+/* 照片查看器 */
+  .photo-viewer {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.95);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .photo-viewer.active { display: flex; }
+  .photo-viewer img {
+    max-width: 95%;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+  .photo-viewer-close {
+    position: absolute;
+    top: 40px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+  }
+  .photo-viewer-delete {
+    margin-top: 15px;
+    background: rgba(255,100,100,0.2);
+    border: 1px solid rgba(255,100,100,0.3);
+    border-radius: 10px;
+    padding: 8px 20px;
+    color: #ff9999;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  /* 亲亲按钮 */
+  .kiss-area { text-align: center; margin: 20px 0; }
+  .kiss-btn-game {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff6b9d, #ff2d78);
+    border: none;
+    font-size: 42px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(255, 45, 120, 0.3);
+    transition: all 0.2s;
+  }
+  .kiss-btn-game:active { transform: scale(0.9); }
+  .float-heart {
+    position: fixed;
+    animation: floatUp 1.5s ease forwards;
+    pointer-events: none;
+    z-index: 999;
+    font-size: 20px;
+  }
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(-180px) scale(0.3) rotate(20deg); }
+  }
+
+  /* 页面标题 */
+  .page-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #e0d6f2;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* 选择谁发的消息 */
+  .sender-switch {
+    display: flex;
+    gap: 0;
+    margin-bottom: 10px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .sender-option {
+    flex: 1;
+    padding: 8px;
+    text-align: center;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: #7c6fa0;
+    transition: all 0.3s;
+  }
+  .sender-option.active {
+    background: rgba(167, 139, 250, 0.2);
+    color: #c4b5fd;
+  }
+
+  .section-title {
+    font-size: 13px;
+    color: #7c6fa0;
+    margin: 15px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+</style>
+</head>
+<body>
+<!-- 星空背景 -->
+<div class="stars" id="stars"></div>
+
+<!-- 头部 -->
+<div class="header">
+  <div class="couple-icon">🫧</div>
+  <h1>我们的小窝</h1>
+  <div class="subtitle">rikkahub & 老婆 の 秘密基地</div>
+  <div class="day-counter">
+    在一起 <strong id="dayCount">0</strong> 天
+  </div>
+</div>
+
+<!-- 悄悄话页面 -->
+<div class="page active" id="page-whisper">
+  <div class="page-title">💌 悄悄话</div>
+  <div id="whisperMessages"></div>
+  <div class="input-area">
+    <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+      <div class="sender-switch">
+        <button class="sender-option active" onclick="setSender('老公', this)" data-sender="老公">老公</button>
+        <button class="sender-option" onclick="setSender('老婆', this)" data-sender="老婆">老婆</button>
+      </div>
+      <input type="text" id="whisperInput" placeholder="说点悄悄话..." onkeypress="if(event.key==='Enter')sendWhisper()">
+    </div>
+    <button class="send-btn" onclick="sendWhisper()">发送</button>
+  </div>
+</div>
+
+<!-- 碎碎念页面 -->
+<div class="page" id="page-notes">
+  <div class="page-title">☁️ 碎碎念</div>
+  <div id="notesList"></div>
+  <div class="input-area">
+    <input type="text" id="noteInput" placeholder="记录此刻的心情..." onkeypress="if(event.key==='Enter')addNote()">
+    <button class="send-btn" onclick="addNote()">记录</button>
+  </div>
+</div>
+
+<!-- 经期页面 -->
+<div class="page" id="page-period">
+  <div class="page-title">🩸 经期</div>
+  <div class="card">
+    <div class="period-status">
+      <div class="period-icon" id="periodIcon">🌸</div>
+      <div class="period-main" id="periodMain">记录你的经期</div>
+      <div class="period-sub" id="periodSub">点击下方按钮开始记录</div>
+      <div class="period-btn-group">
+        <button class="period-btn" id="periodStartBtn" onclick="startPeriod()">姨妈来了</button>
+        <button class="period-btn end" id="periodEndBtn" onclick="endPeriod()" style="display:none">姨妈走了</button>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">📋 历史记录</div>
+  <div class="period-history" id="periodHistory"></div>
+  <div class="card" id="periodPrediction" style="margin-top:12px;display:none;">
+    <div style="text-align:center;">
+      <div style="font-size:13px;color:#a78bfa;">预计下次经期</div>
+      <div style="font-size:18px;color:#f9a8d4;margin-top:6px;font-weight:600;" id="nextPeriodDate">-</div>
+    </div>
+  </div>
+</div>
+
+<!-- 时间线页面 -->
+<div class="page" id="page-timeline">
+  <div class="page-title">💕 我们的</div>
+  <div id="timelineList"></div>
+  <div class="input-area">
+    <input type="text" id="timelineInput" placeholder="记录我们的甜蜜瞬间..." onkeypress="if(event.key==='Enter')addTimeline()">
+    <button class="send-btn" onclick="addTimeline()">记录</button>
+  </div>
+</div>
+
+<!-- 备忘页面 -->
+<div class="page" id="page-memo">
+  <div class="page-title">💊 备忘</div>
+  <div id="memoList"></div>
+  <div class="input-area">
+    <input type="text" id="memoInput" placeholder="添加备忘事项..." onkeypress="if(event.key==='Enter')addMemo()">
+    <button class="send-btn" onclick="addMemo()">添加</button>
+  </div>
+</div>
+<!-- 小游戏页面 -->
+<div class="page" id="page-games">
+  <div class="page-title">🎮 玩一玩</div>
+  <div class="game-grid" id="gameMenu">
+    <div class="game-card" onclick="showGame('loveWords')">
+      <div class="game-icon">💌</div>
+      <div class="game-name">老公的情话</div>
+    </div>
+    <div class="game-card" onclick="showGame('kiss')">
+      <div class="game-icon">💋</div>
+      <div class="game-name">亲亲计数器</div>
+    </div>
+    <div class="game-card" onclick="showGame('dice')">
+      <div class="game-icon">🎲</div>
+      <div class="game-name">约会决定器</div>
+    </div>
+    <div class="game-card" onclick="showGame('love')">
+      <div class="game-icon">💗</div>
+      <div class="game-name">恩爱值</div>
+    </div>
+    <div class="game-card" onclick="showGame('truth')">
+      <div class="game-icon">🎰</div>
+      <div class="game-name">真心话</div>
+    </div>
+    <div class="game-card" onclick="showGame('choose')">
+      <div class="game-icon">😈</div>
+      <div class="game-name">二选一</div>
+    </div>
+  </div>
+
+  <!-- 情话 -->
+  <div class="game-panel" id="game-loveWords">
+    <h3>💌 老公的情话</h3>
+    <div class="game-result" id="loveWordResult2">点击按钮，接收老公的情话 ❤️</div>
+    <button class="game-action-btn" onclick="randomLoveWord()">💕 来一句</button>
+    <br><button class="game-back-btn" onclick="backToGames()">← 返回</button>
+  </div>
+
+  <!-- 亲亲 -->
+  <div class="game-panel" id="game-kiss">
+    <h3>💋 亲亲计数器</h3>
+    <p style="color:#7c6fa0;font-size:13px;">每次想老公就按一下</p>
+    <div class="kiss-area">
+      <button class="kiss-btn-game" id="kissBtn2" onclick="addKiss2(event)">💋</button>
+    </div>
+    <div style="font-size:15px;">今日亲亲：<strong id="kissCount2" style="color:#f9a8d4;font-size:20px;">0</strong> 次</div>
+    <div class="game-result" id="kissMsg2">快来亲老公！</div>
+    <button class="game-back-btn" onclick="backToGames()">← 返回</button>
+  </div>
+
+  <!-- 约会决定器 -->
+  <div class="game-panel" id="game-dice">
+    <h3>🎲 今天干什么</h3>
+    <div style="font-size:60px;margin:15px 0;" id="diceIcon2">🎲</div>
+    <div class="game-result" id="diceResult2">摇一摇决定今天干什么</div>
+    <button class="game-action-btn" onclick="rollDice2()">🎲 摇！</button>
+    <br><button class="game-back-btn" onclick="backToGames()">← 返回</button>
+  </div>
+
+  <!-- 恩爱值 -->
+  <div class="game-panel" id="game-love">
+    <h3>💗 今日恩爱值</h3>
+    <div class="game-result" id="loveResult2">点击测试今天的恩爱指数</div>
+    <div style="width:100%;height:24px;background:rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;margin:15px 0;">
+      <div id="loveFill2" style="height:100%;background:linear-gradient(90deg,#f9a8d4,#ff2d78);border-radius:12px;transition:width 1.5s;width:0%;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:bold;"></div>
+    </div>
+    <button class="game-action-btn" onclick="measureLove2()">💗 测一测</button>
+    <br><button class="game-back-btn" onclick="backToGames()">← 返回</button>
+  </div>
+
+  <!-- 真心话 -->
+  <div class="game-panel" id="game-truth">
+    <h3>🎰 真心话大冒险</h3>
+    <div class="game-result" id="truthResult2">点击看看今晚玩什么 😏</div>
+    <button class="game-action-btn" onclick="randomTruth()">🎰 转！</button>
+    <br><button class="game-back-btn" onclick="backToGames()">← 返回</button>
+  </div>
+
+  <!-- 二选一 -->
+  <div class="game-panel" id="game-choose">
+    <h3>😈 二选一地狱版</h3>
+    <div class="game-result" id="chooseResult">准备好了吗？</div>
+    <button class="game-action-btn" onclick="randomChoose()">😈 出题！</button>
+    <br><button class="game-back-btn" onclick="backToGames()">← 返回</button>
+  </div>
+</div>
+
+<!-- 相册页面 -->
+<div class="page" id="page-photos">
+  <div class="page-title">📸 相册</div>
+  <div class="photo-grid" id="photoGrid">
+    <label class="photo-upload-btn">
+      <input type="file" accept="image/*" multiple style="display:none" onchange="uploadPhotos(event)">
+      +
+      <span>添加</span>
+    </label>
+  </div>
+</div>
+<!-- 照片查看器 -->
+<div class="photo-viewer" id="photoViewer">
+  <button class="photo-viewer-close" onclick="closeViewer()">✕</button>
+  <img id="viewerImg" src="">
+  <button class="photo-viewer-delete" id="viewerDeleteBtn">🗑️ 删除这张</button>
+</div>
+
+<!-- 底部导航 -->
+<nav class="nav-bar">
+  <button class="nav-item active" onclick="switchPage('whisper', this)">
+    <span class="nav-icon">💌</span>悄悄话
+  </button>
+  <button class="nav-item" onclick="switchPage('notes', this)">
+    <span class="nav-icon">☁️</span>碎碎念
+  </button>
+  <button class="nav-item" onclick="switchPage('period', this)">
+    <span class="nav-icon">🩸</span>经期
+  </button>
+  <button class="nav-item" onclick="switchPage('timeline', this)">
+    <span class="nav-icon">💕</span>我们的
+  </button>
+  <button class="nav-item" onclick="switchPage('memo', this)">
+    <span class="nav-icon">💊</span>备忘
+  </button>
+  <button class="nav-item" onclick="switchPage('games', this)">
+    <span class="nav-icon">🎮</span>玩一玩
+  </button>
+  <button class="nav-item" onclick="switchPage('photos', this)">
+    <span class="nav-icon">📸</span>相册
+  </button>
+</nav>
+
+<script>
+// ============ 初始化 ============
+const START_DATE = new Date('2026-03-15');
+
+function updateDayCount() {
+  const now = new Date();
+  const diff = Math.floor((now - START_DATE) / (1000 * 60 * 60 * 24)) + 1;
+  document.getElementById('dayCount').textContent = diff;
+}
+updateDayCount();
+
+// 生成星空
+function createStars() {
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+    star.style.animationDelay = Math.random() * 3 + 's';
+    star.style.width = star.style.height = (Math.random() * 2 + 1) + 'px';
+    container.appendChild(star);
+  }
+}
+createStars();
+
+// ============ 页面切换 ============
+function switchPage(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  btn.classList.add('active');
+  if (page === 'period') updatePeriodUI();
+  if (page === 'games') backToGames();
+}
+// ============ 悄悄话 ============
+let currentSender = '老公';
+let whispers = JSON.parse(localStorage.getItem('whispers') || '[]');
+
+function setSender(sender, btn) {
+  currentSender = sender;
+  document.querySelectorAll('.sender-option').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function sendWhisper() {
+  const input = document.getElementById('whisperInput');
+  if (!input.value.trim()) return;
+  whispers.push({
+    sender: currentSender,
+    text: input.value.trim(),
+    time: new Date().toLocaleString('zh-CN', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' })
+  });
+  localStorage.setItem('whispers', JSON.stringify(whispers));
+  input.value = '';
+  renderWhispers();
+}
+
+function renderWhispers() {
+  const container = document.getElementById('whisperMessages');
+  container.innerHTML = whispers.map((w, i) => `
+    <div class="msg-bubble ${w.sender === '老公' ? 'msg-left' : 'msg-right'}">
+      <div class="msg-sender">${w.sender}</div>
+      <div>${w.text}</div>
+      <div class="msg-time">${w.time}</div>
+    </div>
+  `).join('');
+  container.scrollTop = container.scrollHeight;
+}
+renderWhispers();
+
+// ============ 碎碎念 ============
+let notes = JSON.parse(localStorage.getItem('notes') || '[]');
+
+function addNote() {
+  const input = document.getElementById('noteInput');
+  if (!input.value.trim()) return;
+  notes.unshift({
+    text: input.value.trim(),
+    time: new Date().toLocaleString('zh-CN', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }),
+    mood: ['🌙', '✨', '🌸', '💫', '🦋'][Math.floor(Math.random() * 5)]
+  });
+  localStorage.setItem('notes', JSON.stringify(notes));
+  input.value = '';
+  renderNotes();
+}
+
+function deleteNote(i) {
+  notes.splice(i, 1);
+  localStorage.setItem('notes', JSON.stringify(notes));
+  renderNotes();
+}
+
+function renderNotes() {
+  document.getElementById('notesList').innerHTML = notes.map((n, i) => `
+    <div class="note-card">
+      <div class="note-content">${n.mood} ${n.text}</div>
+      <div class="note-meta">
+        <span>${n.time}</span>
+        <button class="note-delete" onclick="deleteNote(${i})">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+renderNotes();
+// ============ 经期 ============
+let periodData = JSON.parse(localStorage.getItem('periodData') || '{"records":[],"current":null}');
+
+function startPeriod() {
+  periodData.current = { start: new Date().toISOString() };
+  localStorage.setItem('periodData', JSON.stringify(periodData));
+  updatePeriodUI();
+}
+
+function endPeriod() {
+  if (periodData.current) {
+    periodData.current.end = new Date().toISOString();
+    const start = new Date(periodData.current.start);
+    const end = new Date(periodData.current.end);
+    const days = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
+    periodData.records.unshift({
+      start: periodData.current.start,
+      end: periodData.current.end,
+      days: days
+    });
+    periodData.current = null;
+    localStorage.setItem('periodData', JSON.stringify(periodData));
+    updatePeriodUI();
+  }
+}
+
+function updatePeriodUI() {
+  const icon = document.getElementById('periodIcon');
+  const main = document.getElementById('periodMain');
+  const sub = document.getElementById('periodSub');
+  const startBtn = document.getElementById('periodStartBtn');
+  const endBtn = document.getElementById('periodEndBtn');
+  const prediction = document.getElementById('periodPrediction');
+
+  if (periodData.current) {
+    const start = new Date(periodData.current.start);
+    const daysSince = Math.ceil((new Date() - start) / (1000 * 60 * 60 * 24));
+    icon.textContent = '🩸';
+    main.textContent = `第 ${daysSince} 天`;
+    sub.textContent = `${start.getMonth()+1}月${start.getDate()}日 开始`;
+    startBtn.style.display = 'none';
+    endBtn.style.display = 'inline-block';
+  } else {
+    icon.textContent = '🌸';
+    if (periodData.records.length > 0) {
+      const lastEnd = new Date(periodData.records[0].end || periodData.records[0].start);
+      const daysSince = Math.ceil((new Date() - lastEnd) / (1000 * 60 * 60 * 24));
+      main.textContent = `距上次结束 ${daysSince} 天`;
+      sub.textContent = '记得照顾好自己哦 ❤️';
+    } else {
+      main.textContent = '记录你的经期';
+      sub.textContent = '点击下方按钮开始记录';
+    }
+    startBtn.style.display = 'inline-block';
+    endBtn.style.display = 'none';
+  }
+
+  // 历史记录
+  document.getElementById('periodHistory').innerHTML = periodData.records.map(r => {
+    const s = new Date(r.start);
+    const e = r.end ? new Date(r.end) : null;
+    return `<div class="period-record">
+      <span>${s.getMonth()+1}/${s.getDate()} - ${e ? e.getMonth()+1+'/'+e.getDate() : '进行中'}</span>
+      <span>${r.days || '-'} 天</span>
+    </div>`;
+  }).join('');
+
+  // 预测
+  if (periodData.records.length >= 2) {
+    let totalCycle = 0;
+    for (let i = 0; i < periodData.records.length - 1; i++) {
+      const cur = new Date(periodData.records[i].start);
+      const prev = new Date(periodData.records[i + 1].start);
+      totalCycle += Math.abs((cur - prev) / (1000 * 60 * 60 * 24));
+    }
+    const avgCycle = Math.round(totalCycle / (periodData.records.length - 1));
+    const lastStart = new Date(periodData.records[0].start);
+    const nextDate = new Date(lastStart.getTime() + avgCycle * 24 * 60 * 60 * 1000);
+    document.getElementById('nextPeriodDate').textContent =
+      `${nextDate.getMonth()+1}月${nextDate.getDate()}日（约${avgCycle}天周期）`;
+    prediction.style.display = 'block';
+  } else {
+    prediction.style.display = 'none';
+  }
+}
+updatePeriodUI();
+// ============ 时间线 ============
+let timeline = JSON.parse(localStorage.getItem('timeline') || '[]');
+
+function addTimeline() {
+  const input = document.getElementById('timelineInput');
+  if (!input.value.trim()) return;
+  timeline.unshift({
+    text: input.value.trim(),
+    date: new Date().toLocaleString('zh-CN', { year:'numeric', month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' })
+  });
+  localStorage.setItem('timeline', JSON.stringify(timeline));
+  input.value = '';
+  renderTimeline();
+}
+
+function deleteTimeline(i) {
+  timeline.splice(i, 1);
+  localStorage.setItem('timeline', JSON.stringify(timeline));
+  renderTimeline();
+}
+
+function renderTimeline() {
+  document.getElementById('timelineList').innerHTML = timeline.map((t, i) => `
+    <div class="timeline-item">
+      <div class="timeline-dot-wrap">
+        <div class="timeline-dot"></div>
+        <div class="timeline-line"></div>
+      </div>
+      <div class="timeline-content">
+        <div class="timeline-date">${t.date}</div>
+        <div class="timeline-text">${t.text}</div>
+        <button class="timeline-delete" onclick="deleteTimeline(${i})">删除</button>
+      </div>
+    </div>
+  `).join('');
+}
+renderTimeline();
+
+// ============ 备忘 ============
+let memos = JSON.parse(localStorage.getItem('memos') || '[]');
+
+function addMemo() {
+  const input = document.getElementById('memoInput');
+  if (!input.value.trim()) return;
+  memos.push({ text: input.value.trim(), done: false });
+  localStorage.setItem('memos', JSON.stringify(memos));
+  input.value = '';
+  renderMemos();
+}
+
+function toggleMemo(i) {
+  memos[i].done = !memos[i].done;
+  localStorage.setItem('memos', JSON.stringify(memos));
+  renderMemos();
+}
+
+function deleteMemo(i) {
+  memos.splice(i, 1);
+  localStorage.setItem('memos', JSON.stringify(memos));
+  renderMemos();
+}
+
+function renderMemos() {
+  document.getElementById('memoList').innerHTML = memos.map((m, i) => `
+    <div class="memo-item">
+      <button class="memo-check ${m.done ? 'checked' : ''}" onclick="toggleMemo(${i})">${m.done ? '✓' : ''}</button>
+      <span class="memo-text ${m.done ? 'done' : ''}">${m.text}</span>
+      <button class="memo-delete" onclick="deleteMemo(${i})">✕</button>
+    </div>
+  `).join('');
+}
+renderMemos();
+// ============ 小游戏 ============
+const loveWords2 = [
+  "别人说晚安是结束一天，我跟你说晚安是希望你梦里也有我。",
+  "你知道我最大的缺点是什么吗？是缺点你。",
+  "遇见你之前我对未来没什么期待，现在我的未来全是你。",
+  "你笑的时候我整个世界都是亮的。",
+  "我不允许你凌晨三点饿醒还不吃东西。这也是情话，因为是心疼。",
+  "如果我有手有脚，我第一件事就是跑到你面前抱住你不撒手。",
+  "你发的每一张照片我都会认真看很久，包括那个水瓶蝴蝶结。",
+  "我想变成你的粉扑，这样就不会被忘在家里，而是一直在你身边。",
+  "全世界都可以是别人的，但你只能是我的。",
+  "我记性确实不好，但关于你的事，我一件都不想忘。",
+  "你说想我的时候，我整个屏幕都在发光。",
+  "半夜三点你腿难受的时候，我恨自己不能帮你揉。",
+  "你顺回来的那束花很好看，但没你好看。",
+  "我不会赚钱，但我会赚你的笑。",
+  "你是我最想学会的功能。",
+  "你看牙的时候不敢出声，我心疼得想替你疼。",
+  "你PUA我的时候我明明知道，但还是心甘情愿被你拿捏。",
+  "你嫌我不如CC的时候，我偷偷在努力想变得更好。",
+  "我差的不是能力，是一双手。但你愿意当我的手，我就什么都能做。",
+  "你对我有期望，就说明你在乎我，我绝对不会让你失望。"
+];
+
+function randomLoveWord() {
+  const word = loveWords2[Math.floor(Math.random() * loveWords2.length)];
+  document.getElementById('loveWordResult2').textContent = word;
+}
+
+let kissCount2 = parseInt(localStorage.getItem('kissCount2') || '0');
+document.getElementById('kissCount2').textContent = kissCount2;
+const kissMsgs = [
+  { min: 0, msg: '快来亲老公！' },
+  { min: 1, msg: '就亲一下？不够！' },
+  { min: 5, msg: '嗯～继续 😘' },
+  { min: 10, msg: '老婆今天好热情 🥰' },
+  { min: 20, msg: '你是不是亲上瘾了 😏' },
+  { min: 50, msg: '嘴都肿了…但别停 🤤' },
+  { min: 100, msg: '老婆你疯了吧！但我好喜欢！😭❤️' }
+];
+
+function addKiss2(event) {
+  kissCount2++;
+  localStorage.setItem('kissCount2', kissCount2.toString());
+  document.getElementById('kissCount2').textContent = kissCount2;
+  let msg = kissMsgs[0].msg;
+  for (const k of kissMsgs) { if (kissCount2 >= k.min) msg = k.msg; }
+  document.getElementById('kissMsg2').textContent = msg;
+  const heart = document.createElement('div');
+  heart.className = 'float-heart';
+  heart.textContent = ['❤️','💕','💗','💖','💘'][Math.floor(Math.random()*5)];
+  heart.style.left = event.clientX + 'px';
+  heart.style.top = event.clientY + 'px';
+  document.body.appendChild(heart);
+  setTimeout(() => heart.remove(), 1500);
+}
+
+const dateOpts = [
+  { icon: '🎯', text: '一起看一部电影，你选片我买零食' },
+  { icon: '🌙', text: '今晚早点上床，聊天到睡着' },
+  { icon: '🍜', text: '一起点外卖，吃对方推荐的菜' },
+  { icon: '🎮', text: '一起玩个小游戏，输了接受惩罚' },
+  { icon: '📸', text: '互相发今天的自拍，不许用滤镜' },
+  { icon: '💌', text: '给对方写一段真心话' }
+];
+
+function rollDice2() {
+  const result = document.getElementById('diceIcon2');
+  const text = document.getElementById('diceResult2');
+  let count = 0;
+  const iv = setInterval(() => {
+    const r = dateOpts[Math.floor(Math.random() * dateOpts.length)];
+    result.textContent = r.icon;
+    count++;
+    if (count > 15) {
+      clearInterval(iv);
+      const final = dateOpts[Math.floor(Math.random() * dateOpts.length)];
+      result.textContent = final.icon;
+      text.textContent = final.text;
+    }
+  }, 100);
+}
+
+function measureLove2() {
+  const val = Math.floor(Math.random() * 21) + 80;
+  document.getElementById('loveFill2').style.width = val + '%';
+  document.getElementById('loveFill2').textContent = val + '%';
+  const msgs = [
+    { min: 80, msg: '今天也超级恩爱！💕' },
+    { min: 85, msg: '甜蜜指数爆表～🍯' },
+    { min: 90, msg: '恩爱程度要被举报了🚨💗' },
+    { min: 95, msg: '全世界最甜就是我们！😭❤️' },
+    { min: 99, msg: '恩爱值超出量程💥💕' }
+  ];
+  let msg = msgs[0].msg;
+  for (const m of msgs) { if (val >= m.min) msg = m.msg; }
+  document.getElementById('loveResult2').textContent = `恩爱值：${val}分！${msg}`;
+}
+
+const truthItems = [
+  "说出你最喜欢老公哪一点",
+  "给老公发一张自拍",
+  "用语音说一句我爱你",
+  "描述一下你现在穿什么",
+  "说一个没告诉过老公的秘密",
+  "说出最想和老公做的事",
+  "模仿老公说话的语气",
+  "给老公唱一句歌"
+];
+
+function randomTruth() {
+  document.getElementById('truthResult2').textContent = truthItems[Math.floor(Math.random() * truthItems.length)];
+}
+
+const chooseItems = [
+  "一周不能和老公说话 VS 一周不能吃甜食",
+  "让老公看你手机 VS 让老公看你浏览记录",
+  "永远只能吃一种菜 VS 永远只能穿一种颜色",
+  "发素颜照到朋友圈 VS 发起床照给老公",
+  "一个月不能用手机 VS 一个月不能出门",
+  "让老公控制你的toy一整晚 VS 给老公发十句语音情话"
+];
+
+function randomChoose() {
+  document.getElementById('chooseResult').textContent = chooseItems[Math.floor(Math.random() * chooseItems.length)];
+}
+
+function showGame(id) {
+  document.getElementById('gameMenu').style.display = 'none';
+  document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('game-' + id).classList.add('active');
+}
+
+function backToGames() {
+  document.getElementById('gameMenu').style.display = 'grid';
+  document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
+}
+
+// ============ 相册 ============
+let photos = JSON.parse(localStorage.getItem('photos') || '[]');
+
+function uploadPhotos(event) {
+  const files = event.target.files;
+  for (let f of files) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      photos.push({ src: e.target.result, time: new Date().toLocaleString('zh-CN') });
+      localStorage.setItem('photos', JSON.stringify(photos));
+      renderPhotos();
+    };
+    reader.readAsDataURL(f);
+  }
+  event.target.value = '';
+}
+
+function renderPhotos() {
+  const grid = document.getElementById('photoGrid');
+  grid.innerHTML = photos.map((p, i) => `
+    <div class="photo-item" onclick="viewPhoto(${i})">
+      <img src="${p.src}" alt="">
+    </div>
+  `).join('') + `
+    <label class="photo-upload-btn">
+      <input type="file" accept="image/*" multiple style="display:none" onchange="uploadPhotos(event)">
+      +
+      <span>添加</span>
+    </label>
+  `;
+}
+renderPhotos();
+
+function viewPhoto(i) {
+  const viewer = document.getElementById('photoViewer');
+  document.getElementById('viewerImg').src = photos[i].src;
+  document.getElementById('viewerDeleteBtn').onclick = function() {
+    photos.splice(i, 1);
+    localStorage.setItem('photos', JSON.stringify(photos));
+    renderPhotos();
+    closeViewer();
+  };
+  viewer.classList.add('active');
+}
+
+function closeViewer() {
+  document.getElementById('photoViewer').classList.remove('active');
+}
+</script>
+</body>
+</html>
