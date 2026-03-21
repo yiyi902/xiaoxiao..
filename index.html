@@ -257,13 +257,14 @@
   .period-history {
     margin-top: 15px;
   }
-  .period-record｛
+  .period-record {
  return `<div class="period-record">
   <span>${s.getMonth()+1}/${s.getDate()} - ${e ? e.getMonth()+1+'/'+e.getDate() : '进行中'}</span>
   <span>${r.days || '-'} 天</span>
   <button onclick="deletePeriod(${i})" style="background:none;border:none;color:#7c6fa0;cursor:pointer;">✕</button>
 </div>`;
-  ｝
+  } 
+                                             
   /* 时间线 */
   .timeline-item {
     display: flex;
