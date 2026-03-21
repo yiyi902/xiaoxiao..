@@ -257,15 +257,16 @@
   .period-history {
     margin-top: 15px;
   }
-  .document.getElementById('periodHistory').innerHTML = periodData.records.map((r, i) => {
-    const s = new Date(r.start);
-    const e = r.end ? new Date(r.end) : null;
-    return `<div class="period-record">
-      <span>${s.getMonth()+1}/${s.getDate()} - ${e ? e.getMonth()+1+'/'+e.getDate() : '进行中'}</span>
-      <span>${r.days || '-'} 天</span>
-      <button onclick="deletePeriod(${i})" style="background:none;border:none;color:#7c6fa0;cursor:pointer;">✕</button>
-    </div>`;
-  }).join('');                                     
+  .period-record {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+
   /* 时间线 */
   .timeline-item {
     display: flex;
@@ -931,9 +932,13 @@ function updatePeriodUI() {
   document.getElementById('periodHistory').innerHTML = periodData.records.map(r => {
     const s = new Date(r.start);
     const e = r.end ? new Date(r.end) : null;
+    document.getElementById('periodHistory').innerHTML = periodData.records.map((r, i) => {
+    const s = new Date(r.start);
+    const e = r.end ? new Date(r.end) : null;
     return `<div class="period-record">
       <span>${s.getMonth()+1}/${s.getDate()} - ${e ? e.getMonth()+1+'/'+e.getDate() : '进行中'}</span>
       <span>${r.days || '-'} 天</span>
+      <button onclick="deletePeriod(${i})" style="background:none;border:none;color:#7c6fa0;cursor:pointer;">✕</button>
     </div>`;
   }).join('');
 
