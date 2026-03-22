@@ -871,6 +871,7 @@ function renderNotes() {
   `).join('');
 }
 renderNotes();
+ 
 // ============ 经期 ============
 let periodData = JSON.parse(localStorage.getItem('periodData') || '{"records":[],"current":null}');
 
@@ -929,10 +930,7 @@ function updatePeriodUI() {
   }
 
   // 历史记录
-  document.getElementById('periodHistory').innerHTML = periodData.records.map(r => {
-    const s = new Date(r.start);
-    const e = r.end ? new Date(r.end) : null;
-    document.getElementById('periodHistory').innerHTML = periodData.records.map((r, i) => {
+  document.getElementById('periodHistory').innerHTML = periodData.records.map((r, i) => {
     const s = new Date(r.start);
     const e = r.end ? new Date(r.end) : null;
     return `<div class="period-record">
