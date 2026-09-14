@@ -101,7 +101,7 @@
     <div class="nutrient" data-key="protein">
       <div class="nutrient-header">
         <span>蛋白质</span>
-        <span><span class="val">0</span>g <span class="target">/ 75-90g</span></span><span><span class="val">0</span>克 <span class="target">/ 75-90克</span></span>
+        <span><span class="val">0</span>g <span class="target">/ 75-90g</span></span>
       </div>
       <div class="bar"><div class="bar-fill ok" style="width:0%"></div></div>
     </div>
@@ -109,7 +109,7 @@
     <div class="nutrient" data-key="carbs">
       <div class="nutrient-header">
         <span>碳水</span>
-        <span><span class="val">0</span>g <span class="target">/ 140-160g</span></span><span><span class="val">0</span>克 <span class="target">/ 140-160克</span></span>
+        <span><span class="val">0</span>g <span class="target">/ 140-160g</span></span>
       </div>
       <div class="bar"><div class="bar-fill ok" style="width:0%"></div></div>
     </div>
@@ -117,7 +117,7 @@
     <div class="nutrient" data-key="fat">
       <div class="nutrient-header">
         <span>脂肪</span>
-        <span><span class="val">0</span>g <span class="target">/ 40-50g</span></span><span><span class="val">0</span>克 <span class="target">/ 40-50克</span></span><span><span class="val">0</span>克 <span class="target">/ 40-50克</span></span><span><span class="val">0</span>克 <span class="target">/ 40-50克</span></span>
+        <span><span class="val">0</span>g <span class="target">/ 40-50g</span></span>
       </div>
       <div class="bar"><div class="bar-fill ok" style="width:0%"></div></div>
     </div>
@@ -143,4 +143,302 @@
         <option value="午餐">午餐</option>
         <option value="晚餐">晚餐</option>
         <option value="加餐">加餐</option>
-      </selec
+      </select>
+    </div>
+    <button class="btn-add" onclick="addFood()">添加</button>
+    <div class="hint">在食物库中搜索，自动填充营养数据</div>
+  </div>
+
+  <!-- 今日记录 -->
+  <div class="card">
+    <h2>📝 今日记录</h2>
+    <div class="food-list" id="foodList">
+      <div class="empty">还没有记录，添加第一样食物吧</div>
+    </div>
+  </div>
+
+  <!-- 底部按钮 -->
+  <div class="bottom-bar">
+    <button class="btn-export" onclick="exportData()">导出数据</button>
+    <button class="btn-clear" onclick="clearToday()">清空今日</button>
+  </div>
+
+<script>
+// ========== 食物库 ==========
+// 单位：每100g的蛋白质、碳水、脂肪、热量
+const FOOD_DB = {
+  // 蛋类
+  "鸡蛋":        { p: 13.0, c: 2.8,  f: 8.8,  cal: 144 },
+  "水煮蛋":      { p: 13.0, c: 2.8,  f: 8.8,  cal: 144 },
+  "茶叶蛋":      { p: 13.0, c: 2.8,  f: 8.8,  cal: 144 },
+  "蛋白":        { p: 11.0, c: 1.0,  f: 0.1,  cal: 52  },
+  "蛋黄":        { p: 15.2, c: 3.4,  f: 28.2, cal: 328 },
+
+  // 奶类
+  "牛奶":        { p: 3.2,  c: 4.8,  f: 3.6,  cal: 65  },
+  "纯牛奶":      { p: 3.2,  c: 4.8,  f: 3.6,  cal: 65  },
+  "酸奶":        { p: 4.0,  c: 9.3,  f: 4.0,  cal: 90  },
+  "无糖酸奶":    { p: 4.5,  c: 5.0,  f: 4.0,  cal: 75  },
+  "希腊酸奶":    { p: 9.0,  c: 4.0,  f: 5.0,  cal: 97  },
+
+  // 肉类
+  "鸡胸肉":      { p: 24.0, c: 0,    f: 2.5,  cal: 120 },
+  "鸡腿肉":      { p: 20.0, c: 0,    f: 8.0,  cal: 155 },
+  "牛肉":        { p: 20.0, c: 0,    f: 10.0, cal: 170 },
+  "瘦牛肉":      { p: 22.0, c: 0,    f: 5.0,  cal: 135 },
+  "猪瘦肉":      { p: 20.0, c: 0,    f: 6.0,  cal: 140 },
+  "肥牛":        { p: 15.0, c: 0,    f: 25.0, cal: 285 },
+  "羊肉":        { p: 19.0, c: 0,    f: 14.0, cal: 200 },
+  "火腿":        { p: 20.0, c: 2.0,  f: 8.0,  cal: 160 },
+  "方火腿":      { p: 20.0, c: 2.0,  f: 8.0,  cal: 160 },
+  "培根":        { p: 15.0, c: 1.0,  f: 35.0, cal: 380 },
+  "香肠":        { p: 12.0, c: 5.0,  f: 25.0, cal: 300 },
+
+  // 水产
+  "三文鱼":      { p: 20.0, c: 0,    f: 13.0, cal: 200 },
+  "鳕鱼":        { p: 20.5, c: 0,    f: 0.5,  cal: 88  },
+  "虾":          { p: 18.0, c: 1.0,  f: 1.0,  cal: 85  },
+  "金枪鱼":      { p: 24.0, c: 0,    f: 1.0,  cal: 110 },
+  "鱼片":        { p: 18.0, c: 0,    f: 3.0,  cal: 100 },
+
+  // 豆制品
+  "豆腐":        { p: 8.0,  c: 3.0,  f: 5.0,  cal: 85  },
+  "嫩豆腐":      { p: 6.0,  c: 2.0,  f: 3.5,  cal: 60  },
+  "豆干":        { p: 16.0, c: 5.0,  f: 8.0,  cal: 155 },
+  "鸡蛋干":      { p: 13.1, c: 3.5,  f: 9.0,  cal: 150 },
+  "豆浆":        { p: 3.0,  c: 1.5,  f: 1.5,  cal: 30  },
+
+  // 主食
+  "米饭":        { p: 2.6,  c: 25.9, f: 0.3,  cal: 116 },
+  "杂粮饭":      { p: 3.5,  c: 25.0, f: 0.8,  cal: 120 },
+  "紫米饭":      { p: 3.0,  c: 24.0, f: 0.5,  cal: 115 },
+  "面条":        { p: 4.5,  c: 25.0, f: 0.5,  cal: 120 },
+  "面包":        { p: 8.0,  c: 50.0, f: 5.0,  cal: 280 },
+  "全麦面包":    { p: 9.0,  c: 45.0, f: 3.5,  cal: 250 },
+  "玉米":        { p: 4.0,  c: 22.8, f: 1.2,  cal: 112 },
+  "红薯":        { p: 1.6,  c: 20.1, f: 0.2,  cal: 86  },
+  "紫薯":        { p: 1.8,  c: 22.0, f: 0.2,  cal: 95  },
+  "贝贝南瓜":    { p: 1.0,  c: 15.0, f: 0.2,  cal: 70  },
+  "燕麦":        { p: 13.0, c: 66.0, f: 7.0,  cal: 380 },
+  "饭团":        { p: 6.0,  c: 36.0, f: 5.0,  cal: 210 },
+  "三明治":      { p: 8.0,  c: 30.0, f: 10.0, cal: 240 },
+  "麻薯":        { p: 3.0,  c: 55.0, f: 3.0,  cal: 260 },
+  "蛋挞":        { p: 4.0,  c: 25.0, f: 15.0, cal: 250 },
+
+  // 蔬菜
+  "生菜":        { p: 1.3,  c: 2.0,  f: 0.3,  cal: 15  },
+  "芹菜":        { p: 0.8,  c: 3.0,  f: 0.1,  cal: 16  },
+  "紫甘蓝":      { p: 1.4,  c: 6.0,  f: 0.2,  cal: 25  },
+  "黄彩椒":      { p: 1.0,  c: 6.0,  f: 0.2,  cal: 30  },
+  "红彩椒":      { p: 1.0,  c: 6.0,  f: 0.2,  cal: 30  },
+  "冰草":        { p: 1.0,  c: 2.0,  f: 0.2,  cal: 15  },
+  "黄瓜":        { p: 0.8,  c: 2.9,  f: 0.2,  cal: 16  },
+  "番茄":        { p: 0.9,  c: 4.0,  f: 0.2,  cal: 20  },
+  "胡萝卜":      { p: 1.0,  c: 8.8,  f: 0.2,  cal: 41  },
+  "西兰花":      { p: 4.1,  c: 4.3,  f: 0.6,  cal: 36  },
+  "菠菜":        { p: 2.6,  c: 2.8,  f: 0.3,  cal: 24  },
+  "洋葱":        { p: 1.1,  c: 9.0,  f: 0.2,  cal: 40  },
+  "小白菜":      { p: 1.5,  c: 2.4,  f: 0.3,  cal: 17  },
+  "包菜":        { p: 1.5,  c: 4.6,  f: 0.2,  cal: 24  },
+  "土豆":        { p: 2.0,  c: 17.0, f: 0.2,  cal: 77  },
+  "藕片":        { p: 1.9,  c: 16.0, f: 0.2,  cal: 73  },
+  "山药":        { p: 1.9,  c: 12.4, f: 0.2,  cal: 57  },
+  "木耳":        { p: 1.5,  c: 6.0,  f: 0.2,  cal: 27  },
+  "金针菇":      { p: 2.4,  c: 6.0,  f: 0.4,  cal: 32  },
+  "香菇":        { p: 2.2,  c: 5.2,  f: 0.3,  cal: 26  },
+  "豆芽":        { p: 2.1,  c: 4.5,  f: 0.1,  cal: 25  },
+
+  // 水果
+  "苹果":        { p: 0.3,  c: 13.5, f: 0.2,  cal: 54  },
+  "香蕉":        { p: 1.1,  c: 22.0, f: 0.3,  cal: 93  },
+  "蓝莓":        { p: 0.7,  c: 14.5, f: 0.3,  cal: 57  },
+  "草莓":        { p: 0.7,  c: 7.7,  f: 0.3,  cal: 32  },
+  "西瓜":        { p: 0.6,  c: 7.6,  f: 0.2,  cal: 30  },
+  "猕猴桃":      { p: 1.1,  c: 14.5, f: 0.5,  cal: 61  },
+  "橙子":        { p: 0.9,  c: 11.8, f: 0.1,  cal: 48  },
+  "柠檬":        { p: 1.1,  c: 9.3,  f: 0.3,  cal: 37  },
+
+  // 坚果/油脂
+  "坚果":        { p: 20.0, c: 20.0, f: 50.0, cal: 600 },
+  "核桃":        { p: 15.0, c: 14.0, f: 65.0, cal: 650 },
+  "杏仁":        { p: 21.0, c: 22.0, f: 50.0, cal: 580 },
+  "花生":        { p: 26.0, c: 16.0, f: 49.0, cal: 580 },
+  "橄榄油":      { p: 0,    c: 0,    f: 100,  cal: 900 },
+  "亚麻籽油":    { p: 0,    c: 0,    f: 100,  cal: 900 },
+  "黄油":        { p: 0.5,  c: 0.5,  f: 81.0, cal: 740 },
+
+  // 调料
+  "生抽":        { p: 1.1,  c: 0.7,  f: 0,    cal: 8   },
+  "醋":          { p: 0.1,  c: 0.5,  f: 0,    cal: 3   },
+  "白醋":        { p: 0.1,  c: 0.5,  f: 0,    cal: 3   },
+  "酱油":        { p: 1.1,  c: 0.7,  f: 0,    cal: 8   },
+  "辣椒粉":      { p: 0.1,  c: 0.5,  f: 0.2,  cal: 5   },
+
+  // 零食/其他
+  "巧克力":      { p: 5.0,  c: 55.0, f: 32.0, cal: 540 },
+  "黑巧克力":    { p: 8.0,  c: 45.0, f: 40.0, cal: 580 },
+  "辣条":        { p: 5.0,  c: 15.0, f: 20.0, cal: 260 },
+  "薯片":        { p: 6.0,  c: 50.0, f: 30.0, cal: 520 },
+};
+
+// ========== 状态 ==========
+const TODAY_KEY = 'diet_' + new Date().toISOString().slice(0, 10);
+let records = JSON.parse(localStorage.getItem(TODAY_KEY) || '[]');
+
+// ========== 初始化 ==========
+document.getElementById('today').textContent = new Date().toLocaleDateString('zh-CN', {
+  year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+});
+
+// 填充食物库 datalist
+const datalist = document.getElementById('foodLib');
+Object.keys(FOOD_DB).forEach(name => {
+  const opt = document.createElement('option');
+  opt.value = name;
+  datalist.appendChild(opt);
+});
+
+// ========== 添加食物 ==========
+function addFood() {
+  const nameInput = document.getElementById('foodName');
+  const amountInput = document.getElementById('foodAmount');
+  const mealType = document.getElementById('mealType').value;
+
+  const name = nameInput.value.trim();
+  const amount = parseFloat(amountInput.value);
+
+  if (!name) { alert('请输入食物名称'); return; }
+  if (!amount || amount <= 0) { alert('请输入有效克数'); return; }
+
+  // 查找食物库（支持模糊匹配）
+  let dbKey = Object.keys(FOOD_DB).find(k => k === name);
+  if (!dbKey) {
+    dbKey = Object.keys(FOOD_DB).find(k => k.includes(name) || name.includes(k));
+  }
+
+  if (!dbKey) {
+    alert('食物库中未找到「' + name + '」，请换个名称试试');
+    return;
+  }
+
+  const db = FOOD_DB[dbKey];
+  const ratio = amount / 100;
+
+  records.push({
+    name: dbKey,
+    amount: amount,
+    mealType: mealType,
+    p: +(db.p * ratio).toFixed(1),
+    c: +(db.c * ratio).toFixed(1),
+    f: +(db.f * ratio).toFixed(1),
+    cal: Math.round(db.cal * ratio),
+    time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+  });
+
+  save();
+  render();
+
+  // 清空输入
+  nameInput.value = '';
+  amountInput.value = 100;
+  nameInput.focus();
+}
+
+// ========== 删除食物 ==========
+function deleteFood(index) {
+  if (!confirm('确定删除？')) return;
+  records.splice(index, 1);
+  save();
+  render();
+}
+
+// ========== 清空今日 ==========
+function clearToday() {
+  if (!confirm('确定清空今日所有记录？')) return;
+  records = [];
+  save();
+  render();
+}
+
+// ========== 保存到 localStorage ==========
+function save() {
+  localStorage.setItem(TODAY_KEY, JSON.stringify(records));
+}
+
+// ========== 渲染 ==========
+function render() {
+  // 汇总
+  const total = records.reduce((acc, r) => ({
+    p: acc.p + r.p,
+    c: acc.c + r.c,
+    f: acc.f + r.f,
+    cal: acc.cal + r.cal
+  }), { p: 0, c: 0, f: 0, cal: 0 });
+
+  // 更新进度条
+  updateBar('protein', total.p, 75, 90);
+  updateBar('carbs', total.c, 140, 160);
+  updateBar('fat', total.f, 40, 50);
+  updateBar('calories', total.cal, 1450, 1550);
+
+  // 渲染列表
+  const list = document.getElementById('foodList');
+  if (records.length === 0) {
+    list.innerHTML = '<div class="empty">还没有记录，添加第一样食物吧</div>';
+    return;
+  }
+
+  list.innerHTML = records.map((r, i) => `
+    <div class="food-item">
+      <div class="info">
+        <div class="name">${r.mealType} · ${r.name} ${r.amount}g</div>
+        <div class="meta">蛋白${r.p}g · 碳水${r.c}g · 脂肪${r.f}g · ${r.cal}kcal</div>
+      </div>
+      <button class="del" onclick="deleteFood(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+// ========== 更新进度条 ==========
+function updateBar(key, value, min, max) {
+  const el = document.querySelector(`.nutrient[data-key="${key}"]`);
+  if (!el) return;
+
+  const valEl = el.querySelector('.val');
+  const fillEl = el.querySelector('.bar-fill');
+
+  valEl.textContent = Math.round(value);
+
+  const pct = Math.min(100, (value / max) * 100);
+  fillEl.style.width = pct + '%';
+
+  // 颜色：低于下限=橙色，区间内=绿色，超过上限=红色
+  fillEl.className = 'bar-fill ' + (
+    value < min ? 'low' : value > max ? 'over' : 'ok'
+  );
+}
+
+// ========== 导出数据 ==========
+function exportData() {
+  const total = records.reduce((acc, r) => ({
+    p: acc.p + r.p, c: acc.c + r.c, f: acc.f + r.f, cal: acc.cal + r.cal
+  }), { p: 0, c: 0, f: 0, cal: 0 });
+
+  const text = `【饮食记录】${new Date().toLocaleDateString('zh-CN')}
+──────────────────
+${records.map(r => `${r.mealType} ${r.name} ${r.amount}g | 蛋白${r.p} 碳水${r.c} 脂肪${r.f} ${r.cal}kcal`).join('\n')}
+──────────────────
+合计：蛋白质${total.p.toFixed(1)}g / 碳水${total.c.toFixed(1)}g / 脂肪${total.f.toFixed(1)}g / 热量${total.cal}kcal`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    alert('已复制到剪贴板！\n\n' + text);
+  }).catch(() => {
+    prompt('手动复制：', text);
+  });
+}
+
+// ========== 启动 ==========
+render();
+</script>
+</body>
+</html>
