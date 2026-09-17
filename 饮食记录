@@ -143,7 +143,7 @@
         <option value="午餐">午餐</option>
         <option value="晚餐">晚餐</option>
         <option value="加餐">加餐</option>
-      </select>
+      </selec>
     </div>
     <button class="btn-add" onclick="addFood()">添加</button>
     <div class="hint">在食物库中搜索，自动填充营养数据</div>
