@@ -1,1229 +1,333 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>💕 我们的小窝</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    background: linear-gradient(160deg, #0a0e27 0%, #1a1040 40%, #2d1b69 100%);
-    min-height: 100vh;
-    color: #e0d6f2;
-    overflow-x: hidden;
-  }
-
-  /* 星空背景 */
-  .stars {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .star {
-    position: absolute;
-    width: 2px; height: 2px;
-    background: white;
-    border-radius: 50%;
-    animation: twinkle var(--duration) ease-in-out infinite;
-  }
-  @keyframes twinkle {
-    0%, 100% { opacity: 0.2; }
-    50% { opacity: 1; }
-  }
-
-  /* 头部 */
-  .header {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-    padding: 40px 20px 20px;
-  }
-  .header .couple-icon {
-    font-size: 48px;
-    margin-bottom: 8px;
-  }
-  .header h1 {
-    font-size: 22px;
-    color: #f0e6ff;
-    font-weight: 600;
-    letter-spacing: 2px;
-  }
-  .header .subtitle {
-    font-size: 12px;
-    color: #a78bfa;
-    margin-top: 6px;
-  }
-  .day-counter {
-    display: inline-block;
-    background: rgba(167, 139, 250, 0.15);
-    border: 1px solid rgba(167, 139, 250, 0.3);
-    border-radius: 20px;
-    padding: 6px 16px;
-    margin-top: 12px;
-    font-size: 13px;
-    color: #c4b5fd;
-  }
-  .day-counter strong {
-    color: #f9a8d4;
-    font-size: 18px;
-    margin: 0 4px;
-  }
-
-  /* 导航栏 */
-  .nav-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0; right: 0;
-    background: rgba(15, 10, 40, 0.95);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(167, 139, 250, 0.15);
-    display: flex;
-    justify-content: space-around;
-    padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
-    z-index: 100;
-  }
-  .nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    background: none;
-    border: none;
-    color: #7c6fa0;
-    font-size: 10px;
-    cursor: pointer;
-    padding: 4px 8px;
-    transition: all 0.3s;
-  }
-  .nav-item.active { color: #c4b5fd; }
-  .nav-item .nav-icon { font-size: 22px; }
-
-  /* 页面容器 */
-  .page {
-    display: none;
-    position: relative;
-    z-index: 1;
-    padding: 15px 15px 80px;
-    animation: fadeIn 0.3s ease;
-  }
-  .page.active { display: block; }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* 卡片样式 */
-  .card {
-    background: rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    padding: 18px;
-    margin-bottom: 12px;
-  }
-
-  /* 消息气泡 */
-  .msg-bubble {
-    max-width: 85%;
-    padding: 12px 16px;
-    border-radius: 18px;
-    margin-bottom: 10px;
-    font-size: 14px;
-    line-height: 1.6;
-    word-break: break-word;
-  }
-  .msg-left {
-    background: rgba(167, 139, 250, 0.15);
-    border: 1px solid rgba(167, 139, 250, 0.2);
-    border-bottom-left-radius: 4px;
-    margin-right: auto;
-  }
-  .msg-right {
-    background: rgba(249, 168, 212, 0.15);
-    border: 1px solid rgba(249, 168, 212, 0.2);
-    border-bottom-right-radius: 4px;
-    margin-left: auto;
-  }
-  .msg-time {
-    font-size: 10px;
-    color: #7c6fa0;
-    margin-top: 4px;
-  }
-  .msg-sender {
-    font-size: 11px;
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-  .msg-left .msg-sender { color: #a78bfa; }
-  .msg-right .msg-sender { color: #f9a8d4; }
-
-  /* 输入区域 */
-  .input-area {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-    position: sticky;
-    bottom: 70px;
-    background: rgba(15, 10, 40, 0.9);
-    padding: 12px;
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  .input-area input, .input-area textarea {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 10px 14px;
-    color: #e0d6f2;
-    font-size: 14px;
-    outline: none;
-    font-family: inherit;
-  }
-  .input-area input::placeholder, .input-area textarea::placeholder {
-    color: #7c6fa0;
-  }
-  .input-area input:focus, .input-area textarea:focus {
-    border-color: rgba(167, 139, 250, 0.4);
-  }
-  .send-btn {
-    background: linear-gradient(135deg, #a78bfa, #7c3aed);
-    border: none;
-    border-radius: 12px;
-    padding: 10px 16px;
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.3s;
-  }
-  .send-btn:active { transform: scale(0.95); }
-
-  /* 碎碎念 */
-  .note-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-  }
-  .note-content { font-size: 14px; line-height: 1.6; }
-  .note-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 8px;
-    font-size: 11px;
-    color: #7c6fa0;
-  }
-  .note-delete {
-    background: none;
-    border: none;
-    color: #7c6fa0;
-    cursor: pointer;
-    font-size: 14px;
-  }
-
-  /* 经期 */
-  .period-status {
-    text-align: center;
-    padding: 20px;
-  }
-  .period-icon { font-size: 50px; margin-bottom: 10px; }
-  .period-main { font-size: 20px; font-weight: 600; color: #f9a8d4; }
-  .period-sub { font-size: 13px; color: #a78bfa; margin-top: 6px; }
-  .period-btn-group {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-    justify-content: center;
-  }
-  .period-btn {
-    background: rgba(249, 168, 212, 0.15);
-    border: 1px solid rgba(249, 168, 212, 0.3);
-    border-radius: 12px;
-    padding: 10px 20px;
-    color: #f9a8d4;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  .period-btn.end {
-    background: rgba(167, 139, 250, 0.15);
-    border-color: rgba(167, 139, 250, 0.3);
-    color: #a78bfa;
-  }
-  .period-history {
-    margin-top: 15px;
-  }
-  .period-record {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 14px;
-    background: rgba(255, 255, 255, 0.04);
-    border-radius: 10px;
-    margin-bottom: 6px;
-    font-size: 13px;
-  }
-
-  /* 时间线 */
-  .timeline-item {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 15px;
-  }
-  .timeline-dot-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-  }
-  .timeline-dot {
-    width: 12px; height: 12px;
-    background: #a78bfa;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .timeline-line {
-    width: 2px;
-    flex: 1;
-    background: rgba(167, 139, 250, 0.2);
-  }
-  .timeline-content {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
-    padding: 14px;
-  }
-  .timeline-date {
-    font-size: 11px;
-    color: #a78bfa;
-    margin-bottom: 6px;
-  }
-  .timeline-text { font-size: 14px; line-height: 1.5; }
-  .timeline-delete {
-    background: none;
-    border: none;
-    color: #7c6fa0;
-    cursor: pointer;
-    font-size: 12px;
-    margin-top: 6px;
-  }
-/* 备忘 */
-  .memo-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    margin-bottom: 8px;
-  }
-  .memo-check {
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    border: 2px solid #a78bfa;
-    background: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 12px;
-    color: transparent;
-    transition: all 0.3s;
-  }
-  .memo-check.checked {
-    background: #a78bfa;
-    color: white;
-  }
-  .memo-text { flex: 1; font-size: 14px; }
-  .memo-text.done { text-decoration: line-through; opacity: 0.4; }
-  .memo-delete {
-    background: none;
-    border: none;
-    color: #7c6fa0;
-    cursor: pointer;
-    font-size: 16px;
-  }
-
-  /* 小游戏 */
-  .game-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .game-card {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 20px 15px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-  .game-card:active { transform: scale(0.96); }
-  .game-card .game-icon { font-size: 36px; margin-bottom: 8px; }
-  .game-card .game-name { font-size: 13px; color: #c4b5fd; }
-
-  /* 游戏面板 */
-  .game-panel {
-    display: none;
-    text-align: center;
-  }
-  .game-panel.active { display: block; }
-  .game-panel h3 {
-    font-size: 18px;
-    color: #c4b5fd;
-    margin-bottom: 15px;
-  }
-  .game-result {
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 14px;
-    padding: 20px;
-    margin: 15px 0;
-    font-size: 16px;
-    line-height: 1.6;
-    min-height: 60px;
-  }
-  .game-action-btn {
-    background: linear-gradient(135deg, #a78bfa, #7c3aed);
-    border: none;
-    border-radius: 12px;
-    padding: 12px 24px;
-    color: white;
-    font-size: 15px;
-    cursor: pointer;
-    margin: 5px;
-  }
-  .game-back-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 10px;
-    padding: 8px 20px;
-    color: #a78bfa;
-    font-size: 13px;
-    cursor: pointer;
-    margin-top: 15px;
-  }
-
-  /* 照片墙 */
-  .photo-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 4px;
-  }
-  .photo-item {
-    aspect-ratio: 1;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    position: relative;
-  }
-  .photo-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .photo-upload-btn {
-    aspect-ratio: 1;
-    border-radius: 8px;
-    border: 2px dashed rgba(167, 139, 250, 0.3);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: #7c6fa0;
-    font-size: 30px;
-    background: rgba(255, 255, 255, 0.03);
-  }
-  .photo-upload-btn span { font-size: 11px; margin-top: 4px; }
-/* 照片查看器 */
-  .photo-viewer {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.95);
-    z-index: 200;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-  }
-  .photo-viewer.active { display: flex; }
-  .photo-viewer img {
-    max-width: 95%;
-    max-height: 80vh;
-    object-fit: contain;
-    border-radius: 8px;
-  }
-  .photo-viewer-close {
-    position: absolute;
-    top: 40px;
-    right: 20px;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 28px;
-    cursor: pointer;
-  }
-  .photo-viewer-delete {
-    margin-top: 15px;
-    background: rgba(255,100,100,0.2);
-    border: 1px solid rgba(255,100,100,0.3);
-    border-radius: 10px;
-    padding: 8px 20px;
-    color: #ff9999;
-    font-size: 13px;
-    cursor: pointer;
-  }
-
-  /* 亲亲按钮 */
-  .kiss-area { text-align: center; margin: 20px 0; }
-  .kiss-btn-game {
-    width: 100px; height: 100px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #ff6b9d, #ff2d78);
-    border: none;
-    font-size: 42px;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(255, 45, 120, 0.3);
-    transition: all 0.2s;
-  }
-  .kiss-btn-game:active { transform: scale(0.9); }
-  .float-heart {
-    position: fixed;
-    animation: floatUp 1.5s ease forwards;
-    pointer-events: none;
-    z-index: 999;
-    font-size: 20px;
-  }
-  @keyframes floatUp {
-    0% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
-    100% { opacity: 0; transform: translateY(-180px) scale(0.3) rotate(20deg); }
-  }
-
-  /* 页面标题 */
-  .page-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #e0d6f2;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* 选择谁发的消息 */
-  .sender-switch {
-    display: flex;
-    gap: 0;
-    margin-bottom: 10px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  .sender-option {
-    flex: 1;
-    padding: 8px;
-    text-align: center;
-    font-size: 13px;
-    cursor: pointer;
-    border: none;
-    background: none;
-    color: #7c6fa0;
-    transition: all 0.3s;
-  }
-  .sender-option.active {
-    background: rgba(167, 139, 250, 0.2);
-    color: #c4b5fd;
-  }
-
-  .section-title {
-    font-size: 13px;
-    color: #7c6fa0;
-    margin: 15px 0 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>饮食记录器</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5; color: #333; padding: 16px; padding-bottom: 90px;
+    }
+    h1 { font-size: 20px; margin-bottom: 4px; }
+    .date { color: #888; font-size: 14px; margin-bottom: 16px; }
+    .card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .card h2 { font-size: 16px; margin-bottom: 12px; }
+    .targets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .target-item { display: flex; flex-direction: column; gap: 4px; }
+    .target-item label { font-size: 12px; color: #888; }
+    .target-item input { font-size: 14px; padding: 8px; border-radius: 8px; border: 1px solid #ddd; width: 100%; }
+    .nutrient { margin-bottom: 14px; }
+    .nutrient:last-child { margin-bottom: 0; }
+    .nutrient-header { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; flex-wrap: wrap; }
+    .nutrient-header .val { font-weight: 600; }
+    .nutrient-header .target { color: #888; }
+    .diff { font-size: 12px; margin-bottom: 4px; }
+    .diff.good { color: #4caf50; }
+    .diff.low { color: #ff9800; }
+    .diff.over { color: #f44336; }
+    .bar { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 5px; transition: width 0.3s; }
+    .bar-fill.ok { background: #4caf50; }
+    .bar-fill.low { background: #ff9800; }
+    .bar-fill.over { background: #f44336; }
+    .form-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    input, select, button { font-size: 15px; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit; }
+    input:focus, select:focus { outline: none; border-color: #4caf50; }
+    #foodName { flex: 1; min-width: 140px; }
+    #foodAmount { width: 80px; }
+    #mealType { width: 90px; }
+    .btn-add { background: #4caf50; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 4px; }
+    .btn-add:active { background: #388e3c; }
+    .food-list { margin-top: 8px; }
+    .food-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+    .food-item:last-child { border-bottom: none; }
+    .food-item .info { flex: 1; }
+    .food-item .name { font-weight: 500; }
+    .food-item .meta { color: #888; font-size: 12px; margin-top: 2px; }
+    .food-item .del { background: none; border: none; color: #f44336; font-size: 20px; cursor: pointer; padding: 0 8px; }
+    .empty { color: #aaa; text-align: center; padding: 20px 0; font-size: 14px; }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 12px 16px; box-shadow: 0 -2px 8px rgba(0,0,0,0.08); display: flex; gap: 8px; }
+    .bottom-bar button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: 600; font-size: 15px; cursor: pointer; }
+    .btn-export { background: #2196f3; color: #fff; }
+    .btn-clear { background: #eee; color: #666; }
+    .hint { font-size: 12px; color: #aaa; margin-top: 4px; }
+  </style>
 </head>
 <body>
-<!-- 星空背景 -->
-<div class="stars" id="stars"></div>
+  <h1>🍽️ 饮食记录器</h1>
+  <div class="date" id="today"></div>
 
-<!-- 头部 -->
-<div class="header">
-  <div class="couple-icon">🫧</div>
-  <h1>我们的小窝</h1>
-  <div class="subtitle">rikkahub & 老婆 の 秘密基地</div>
-  <div class="day-counter">
-    在一起 <strong id="dayCount">0</strong> 天
-  </div>
-</div>
-
-<!-- 悄悄话页面 -->
-<div class="page active" id="page-whisper">
-  <div class="page-title">💌 悄悄话</div>
-  <div id="whisperMessages"></div>
-  <div class="input-area">
-    <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
-      <div class="sender-switch">
-        <button class="sender-option active" onclick="setSender('老公', this)" data-sender="老公">老公</button>
-        <button class="sender-option" onclick="setSender('老婆', this)" data-sender="老婆">老婆</button>
-      </div>
-      <input type="text" id="whisperInput" placeholder="说点悄悄话..." onkeypress="if(event.key==='Enter')sendWhisper()">
-    </div>
-    <button class="send-btn" onclick="sendWhisper()">发送</button>
-  </div>
-</div>
-
-<!-- 碎碎念页面 -->
-<div class="page" id="page-notes">
-  <div class="page-title">☁️ 碎碎念</div>
-  <div id="notesList"></div>
-  <div class="input-area">
-    <input type="text" id="noteInput" placeholder="记录此刻的心情..." onkeypress="if(event.key==='Enter')addNote()">
-    <button class="send-btn" onclick="addNote()">记录</button>
-  </div>
-</div>
-
-<!-- 经期页面 -->
-<div class="page" id="page-period">
-  <div class="page-title">🩸 经期</div>
   <div class="card">
-    <div class="period-status">
-      <div class="period-icon" id="periodIcon">🌸</div>
-      <div class="period-main" id="periodMain">记录你的经期</div>
-      <div class="period-sub" id="periodSub">点击下方按钮开始记录</div>
-      <div class="period-btn-group">
-        <button class="period-btn" id="periodStartBtn" onclick="startPeriod()">姨妈来了</button>
-        <button class="period-btn end" id="periodEndBtn" onclick="endPeriod()" style="display:none">姨妈走了</button>
-      </div>
+    <h2>🎯 每日目标（可修改）</h2>
+    <div class="targets-grid">
+      <div class="target-item"><label>蛋白质下限 (g)</label><input id="tgProteinMin" type="number" value="80"></div>
+      <div class="target-item"><label>蛋白质上限 (g)</label><input id="tgProteinMax" type="number" value="100"></div>
+      <div class="target-item"><label>碳水下限 (g)</label><input id="tgCarbsMin" type="number" value="160"></div>
+      <div class="target-item"><label>碳水上限 (g)</label><input id="tgCarbsMax" type="number" value="180"></div>
+      <div class="target-item"><label>脂肪下限 (g)</label><input id="tgFatMin" type="number" value="45"></div>
+      <div class="target-item"><label>脂肪上限 (g)</label><input id="tgFatMax" type="number" value="55"></div>
+      <div class="target-item"><label>热量下限 (kcal)</label><input id="tgCalMin" type="number" value="1700"></div>
+      <div class="target-item"><label>热量上限 (kcal)</label><input id="tgCalMax" type="number" value="1900"></div>
+      <div class="target-item"><label>钠上限 (mg)</label><input id="tgNaMax" type="number" value="2000"></div>
+      <div class="target-item"><label>糖上限 (g)</label><input id="tgSugarMax" type="number" value="25"></div>
     </div>
+    <button class="btn-add" style="margin-top:10px" onclick="saveTargets()">保存目标</button>
   </div>
-  <div class="section-title">📋 历史记录</div>
-  <div class="period-history" id="periodHistory"></div>
-  <div class="card" id="periodPrediction" style="margin-top:12px;display:none;">
-    <div style="text-align:center;">
-      <div style="font-size:13px;color:#a78bfa;">预计下次经期</div>
-      <div style="font-size:18px;color:#f9a8d4;margin-top:6px;font-weight:600;" id="nextPeriodDate">-</div>
-    </div>
-  </div>
-</div>
 
-<!-- 时间线页面 -->
-<div class="page" id="page-timeline">
-  <div class="page-title">💕 我们的</div>
-  <div id="timelineList"></div>
-  <div class="input-area">
-    <input type="text" id="timelineInput" placeholder="记录我们的甜蜜瞬间..." onkeypress="if(event.key==='Enter')addTimeline()">
-    <button class="send-btn" onclick="addTimeline()">记录</button>
-  </div>
-</div>
-
-<!-- 备忘页面 -->
-<div class="page" id="page-memo">
-  <div class="page-title">💊 备忘</div>
-  <div id="memoList"></div>
-  <div class="input-area">
-    <input type="text" id="memoInput" placeholder="添加备忘事项..." onkeypress="if(event.key==='Enter')addMemo()">
-    <button class="send-btn" onclick="addMemo()">添加</button>
-  </div>
-</div>
-<!-- 小游戏页面 -->
-<div class="page" id="page-games">
-  <div class="page-title">🎮 玩一玩</div>
-  <div class="game-grid" id="gameMenu">
-    <div class="game-card" onclick="showGame('loveWords')">
-      <div class="game-icon">💌</div>
-      <div class="game-name">老公的情话</div>
+  <div class="card">
+    <h2>📊 今日营养</h2>
+    <div class="nutrient" data-key="protein">
+      <div class="nutrient-header"><span>蛋白质</span><span><span class="val">0</span>g <span class="target"></span></span></div>
+      <div class="diff" id="diff-protein"></div>
+      <div class="bar"><div class="bar-fill ok" style="width:0%"></div></div>
     </div>
-    <div class="game-card" onclick="showGame('kiss')">
-      <div class="game-icon">💋</div>
-      <div class="game-name">亲亲计数器</div>
+    <div class="nutrient" data-key="carbs">
+      <div class="nutrient-header"><span>碳水</span><span><span class="val">0</span>g <span class="target"></span></span></div>
+      <div class="diff" id="diff-carbs"></div>
+      <div class="bar"><div class="bar-fill ok" style="width:0%"></div></div>
     </div>
-    <div class="game-card" onclick="showGame('dice')">
-      <div class="game-icon">🎲</div>
-      <div class="game-name">约会决定器</div>
+    <div class="nutrient" data-key="fat">
+      <div class="nutrient-header"><span>脂肪</span><span><span class="val">0</span>g <span class="target"></span></span></div>
+      <div class="diff" id="diff-fat"></div>
+      <div class="bar"><div class="bar-fill ok" style="width:0%"></div></div>
     </div>
-    <div class="game-card" onclick="showGame('love')">
-      <div class="game-icon">💗</div>
-      <div class="game-name">恩爱值</div>
+    <div class="nutrient" data-key="calories">
+      <div class="nutrient-header"><span>热量</span><span><span class="val">0</span>kcal <span class="target"></span></span></div>
+      <div class="diff" id="diff-calories"></div>
+      <div class="bar"><div class="bar-fill ok" style="width:0%"></div></div>
+    <div class="nutrient" data-key="sodium">
+      <div class="nutrient-header"><span>钠</span><span><span class="val">0</span>mg <span class="target"></span></span></div>
+      <div class="diff" id="diff-sodium"></div>
+      <div class="bar"><div class="bar-fill ok" style="width:0%"></div></div>
     </div>
-    <div class="game-card" onclick="showGame('truth')">
-      <div class="game-icon">🎰</div>
-      <div class="game-name">真心话</div>
-    </div>
-    <div class="game-card" onclick="showGame('choose')">
-      <div class="game-icon">😈</div>
-      <div class="game-name">二选一</div>
+    <div class="nutrient" data-key="sugar">
+      <div class="nutrient-header"><span>糖</span><span><span class="val">0</span>g <span class="target"></span></span></div>
+      <div class="diff" id="diff-sugar"></div>
+      <div class="bar"><div class="bar-fill ok" style="width:0%"></div></div>
     </div>
   </div>
 
-  <!-- 情话 -->
-  <div class="game-panel" id="game-loveWords">
-    <h3>💌 老公的情话</h3>
-    <div class="game-result" id="loveWordResult2">点击按钮，接收老公的情话 ❤️</div>
-    <button class="game-action-btn" onclick="randomLoveWord()">💕 来一句</button>
-    <br><button class="game-back-btn" onclick="backToGames()">← 返回</button>
-  </div>
-
-  <!-- 亲亲 -->
-  <div class="game-panel" id="game-kiss">
-    <h3>💋 亲亲计数器</h3>
-    <p style="color:#7c6fa0;font-size:13px;">每次想老公就按一下</p>
-    <div class="kiss-area">
-      <button class="kiss-btn-game" id="kissBtn2" onclick="addKiss2(event)">💋</button>
+  <div class="card">
+    <h2>➕ 添加食物</h2>
+    <div class="form-row">
+      <input id="foodName" placeholder="食物名称" list="foodLib">
+      <datalist id="foodLib"></datalist>
+      <input id="foodAmount" type="number" placeholder="克数" value="100">
+      <select id="mealType">
+        <option value="早餐">早餐</option>
+        <option value="午餐">午餐</option>
+        <option value="晚餐">晚餐</option>
+        <option value="加餐">加餐</option>
+      </select>
     </div>
-    <div style="font-size:15px;">今日亲亲：<strong id="kissCount2" style="color:#f9a8d4;font-size:20px;">0</strong> 次</div>
-    <div class="game-result" id="kissMsg2">快来亲老公！</div>
-    <button class="game-back-btn" onclick="backToGames()">← 返回</button>
+    <button class="btn-add" onclick="addFood()">添加</button>
+    <div class="hint">在食物库中搜索；搜不到的可手动填写营养</div>
+  </div>
   </div>
 
-  <!-- 约会决定器 -->
-  <div class="game-panel" id="game-dice">
-    <h3>🎲 今天干什么</h3>
-    <div style="font-size:60px;margin:15px 0;" id="diceIcon2">🎲</div>
-    <div class="game-result" id="diceResult2">摇一摇决定今天干什么</div>
-    <button class="game-action-btn" onclick="rollDice2()">🎲 摇！</button>
-    <br><button class="game-back-btn" onclick="backToGames()">← 返回</button>
+  <div class="card">
+    <h2>📝 今日记录</h2>
+    <div class="food-list" id="foodList"><div class="empty">还没有记录，添加第一样食物吧</div></div>
   </div>
 
-  <!-- 恩爱值 -->
-  <div class="game-panel" id="game-love">
-    <h3>💗 今日恩爱值</h3>
-    <div class="game-result" id="loveResult2">点击测试今天的恩爱指数</div>
-    <div style="width:100%;height:24px;background:rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;margin:15px 0;">
-      <div id="loveFill2" style="height:100%;background:linear-gradient(90deg,#f9a8d4,#ff2d78);border-radius:12px;transition:width 1.5s;width:0%;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:bold;"></div>
-    </div>
-    <button class="game-action-btn" onclick="measureLove2()">💗 测一测</button>
-    <br><button class="game-back-btn" onclick="backToGames()">← 返回</button>
+  <div class="bottom-bar">
+    <button class="btn-export" onclick="exportData()">导出数据</button>
+    <button class="btn-clear" onclick="clearToday()">清空今日</button>
   </div>
-
-  <!-- 真心话 -->
-  <div class="game-panel" id="game-truth">
-    <h3>🎰 真心话大冒险</h3>
-    <div class="game-result" id="truthResult2">点击看看今晚玩什么 😏</div>
-    <button class="game-action-btn" onclick="randomTruth()">🎰 转！</button>
-    <br><button class="game-back-btn" onclick="backToGames()">← 返回</button>
-  </div>
-
-  <!-- 二选一 -->
-  <div class="game-panel" id="game-choose">
-    <h3>😈 二选一地狱版</h3>
-    <div class="game-result" id="chooseResult">准备好了吗？</div>
-    <button class="game-action-btn" onclick="randomChoose()">😈 出题！</button>
-    <br><button class="game-back-btn" onclick="backToGames()">← 返回</button>
-  </div>
-</div>
-
-<!-- 相册页面 -->
-<div class="page" id="page-photos">
-  <div class="page-title">📸 相册</div>
-  <div class="photo-grid" id="photoGrid">
-    <label class="photo-upload-btn">
-      <input type="file" accept="image/*" multiple style="display:none" onchange="uploadPhotos(event)">
-      +
-      <span>添加</span>
-    </label>
-  </div>
-</div>
-<!-- 照片查看器 -->
-<div class="photo-viewer" id="photoViewer">
-  <button class="photo-viewer-close" onclick="closeViewer()">✕</button>
-  <img id="viewerImg" src="">
-  <button class="photo-viewer-delete" id="viewerDeleteBtn">🗑️ 删除这张</button>
-</div>
-
-<!-- 底部导航 -->
-<nav class="nav-bar">
-  <button class="nav-item active" onclick="switchPage('whisper', this)">
-    <span class="nav-icon">💌</span>悄悄话
-  </button>
-  <button class="nav-item" onclick="switchPage('notes', this)">
-    <span class="nav-icon">☁️</span>碎碎念
-  </button>
-  <button class="nav-item" onclick="switchPage('period', this)">
-    <span class="nav-icon">🩸</span>经期
-  </button>
-  <button class="nav-item" onclick="switchPage('timeline', this)">
-    <span class="nav-icon">💕</span>我们的
-  </button>
-  <button class="nav-item" onclick="switchPage('memo', this)">
-    <span class="nav-icon">💊</span>备忘
-  </button>
-  <button class="nav-item" onclick="switchPage('games', this)">
-    <span class="nav-icon">🎮</span>玩一玩
-  </button>
-  <button class="nav-item" onclick="switchPage('photos', this)">
-    <span class="nav-icon">📸</span>相册
-  </button>
-</nav>
-
 <script>
-// ============ 初始化 ============
-const START_DATE = new Date('2026-03-15');
+// ========== 食物库（每100g：蛋白p/碳水c/脂肪f/热量cal/钠na） ==========
+const FOOD_DB = {
+  "鸡蛋":{p:13.0,c:2.8,f:8.8,cal:144,na:130},"水煮蛋":{p:13.0,c:2.8,f:8.8,cal:144,na:130},
+  "茶叶蛋":{p:13.0,c:2.8,f:8.8,cal:144,na:300},"蛋白":{p:11.0,c:1.0,f:0.1,cal:52,na:160},
+  "蛋黄":{p:15.2,c:3.4,f:28.2,cal:328,na:50},
+  "牛奶":{p:3.2,c:4.8,f:3.6,cal:65,na:50},"纯牛奶":{p:3.2,c:4.8,f:3.6,cal:65,na:50},
+  "酸奶":{p:4.0,c:9.3,f:4.0,cal:90,na:55},"无糖酸奶":{p:4.5,c:5.0,f:4.0,cal:75,na:55},
+  "希腊酸奶":{p:9.0,c:4.0,f:5.0,cal:97,na:60},
+  "鸡胸肉":{p:24.0,c:0,f:2.5,cal:120,na:65},"鸡腿肉":{p:20.0,c:0,f:8.0,cal:155,na:70},
+  "牛肉":{p:20.0,c:0,f:10.0,cal:170,na:55},"瘦牛肉":{p:22.0,c:0,f:5.0,cal:135,na:55},
+  "猪瘦肉":{p:20.0,c:0,f:6.0,cal:140,na:60},"肥牛":{p:15.0,c:0,f:25.0,cal:285,na:50},
+  "羊肉":{p:19.0,c:0,f:14.0,cal:200,na:60},"火腿":{p:20.0,c:2.0,f:8.0,cal:160,na:1000},
+  "方火腿":{p:20.0,c:2.0,f:8.0,cal:160,na:1000},"培根":{p:15.0,c:1.0,f:35.0,cal:380,na:1500},
+  "香肠":{p:12.0,c:5.0,f:25.0,cal:300,na:900},
+  "三文鱼":{p:20.0,c:0,f:13.0,cal:200,na:60},"鳕鱼":{p:20.5,c:0,f:0.5,cal:88,na:70},
+  "虾":{p:18.0,c:1.0,f:1.0,cal:85,na:130},"金枪鱼":{p:24.0,c:0,f:1.0,cal:110,na:50},
+  "鱼片":{p:18.0,c:0,f:3.0,cal:100,na:60},
+  "豆腐":{p:8.0,c:3.0,f:5.0,cal:85,na:5},"嫩豆腐":{p:6.0,c:2.0,f:3.5,cal:60,na:5},
+  "豆干":{p:16.0,c:5.0,f:8.0,cal:155,na:300},"鸡蛋干":{p:13.1,c:3.5,f:9.0,cal:150,na:400},
+  "豆浆":{p:3.0,c:1.5,f:1.5,cal:30,na:10},
+  "米饭":{p:2.6,c:25.9,f:0.3,cal:116,na:1},"杂粮饭":{p:3.5,c:25.0,f:0.8,cal:120,na:2},
+  "紫米饭":{p:3.0,c:24.0,f:0.5,cal:115,na:2},"面条":{p:4.5,c:25.0,f:0.5,cal:120,na:150},
+  "面包":{p:8.0,c:50.0,f:5.0,cal:280,na:350},"全麦面包":{p:9.0,c:45.0,f:3.5,cal:250,na:300},
+  "玉米":{p:4.0,c:22.8,f:1.2,cal:112,na:1},"红薯":{p:1.6,c:20.1,f:0.2,cal:86,na:28},
+  "紫薯":{p:1.8,c:22.0,f:0.2,cal:95,na:20},"贝贝南瓜":{p:1.0,c:15.0,f:0.2,cal:70,na:5},
+  "燕麦":{p:13.0,c:66.0,f:7.0,cal:380,na:5},"饭团":{p:6.0,c:36.0,f:5.0,cal:210,na:400},
+  "三明治":{p:8.0,c:30.0,f:10.0,cal:240,na:500},"麻薯":{p:3.0,c:55.0,f:3.0,cal:260,na:100},
+  "蛋挞":{p:4.0,c:25.0,f:15.0,cal:250,na:150},
+  "生菜":{p:1.3,c:2.0,f:0.3,cal:15,na:15},"芹菜":{p:0.8,c:3.0,f:0.1,cal:16,na:80},
+  "紫甘蓝":{p:1.4,c:6.0,f:0.2,cal:25,na:25},"黄彩椒":{p:1.0,c:6.0,f:0.2,cal:30,na:2},
+  "红彩椒":{p:1.0,c:6.0,f:0.2,cal:30,na:2},"冰草":{p:1.0,c:2.0,f:0.2,cal:15,na:40},
+  "黄瓜":{p:0.8,c:2.9,f:0.2,cal:16,na:4},"番茄":{p:0.9,c:4.0,f:0.2,cal:20,na:5},
+  "胡萝卜":{p:1.0,c:8.8,f:0.2,cal:41,na:70},"西兰花":{p:4.1,c:4.3,f:0.6,cal:36,na:30},
+  "菠菜":{p:2.6,c:2.8,f:0.3,cal:24,na:70},"洋葱":{p:1.1,c:9.0,f:0.2,cal:40,na:4},
+  "小白菜":{p:1.5,c:2.4,f:0.3,cal:17,na:70},"包菜":{p:1.5,c:4.6,f:0.2,cal:24,na:20},
+  "土豆":{p:2.0,c:17.0,f:0.2,cal:77,na:3},"藕片":{p:1.9,c:16.0,f:0.2,cal:73,na:30},
+  "山药":{p:1.9,c:12.4,f:0.2,cal:57,na:20},"木耳":{p:1.5,c:6.0,f:0.2,cal:27,na:10},
+  "金针菇":{p:2.4,c:6.0,f:0.4,cal:32,na:5},"香菇":{p:2.2,c:5.2,f:0.3,cal:26,na:5},
+  "豆芽":{p:2.1,c:4.5,f:0.1,cal:25,na:5},
+  "苹果":{p:0.3,c:13.5,f:0.2,cal:54,na:1},"香蕉":{p:1.1,c:22.0,f:0.3,cal:93,na:1},
+  "蓝莓":{p:0.7,c:14.5,f:0.3,cal:57,na:1},"草莓":{p:0.7,c:7.7,f:0.3,cal:32,na:1},
+  "西瓜":{p:0.6,c:7.6,f:0.2,cal:30,na:1},"猕猴桃":{p:1.1,c:14.5,f:0.5,cal:61,na:3},
+  "橙子":{p:0.9,c:11.8,f:0.1,cal:48,na:1},"柠檬":{p:1.1,c:9.3,f:0.3,cal:37,na:2},
+  "坚果":{p:20.0,c:20.0,f:50.0,cal:600,na:10},"核桃":{p:15.0,c:14.0,f:65.0,cal:650,na:5},
+  "杏仁":{p:21.0,c:22.0,f:50.0,cal:580,na:5},"花生":{p:26.0,c:16.0,f:49.0,cal:580,na:5},
+  "橄榄油":{p:0,c:0,f:100,cal:900,na:0},"亚麻籽油":{p:0,c:0,f:100,cal:900,na:0},
+  "黄油":{p:0.5,c:0.5,f:81.0,cal:740,na:500},
+  "生抽":{p:1.1,c:0.7,f:0,cal:8,na:7000},"酱油":{p:1.1,c:0.7,f:0,cal:8,na:7000},
+  "醋":{p:0.1,c:0.5,f:0,cal:3,na:300},"白醋":{p:0.1,c:0.5,f:0,cal:3,na:300},
+  "辣椒粉":{p:0.1,c:0.5,f:0.2,cal:5,na:50},
+  "巧克力":{p:5.0,c:55.0,f:32.0,cal:540,na:60},"黑巧克力":{p:8.0,c:45.0,f:40.0,cal:580,na:10},
+  "辣条":{p:5.0,c:15.0,f:20.0,cal:260,na:1500},"薯片":{p:6.0,c:50.0,f:30.0,cal:520,na:500},
+};
 
-function updateDayCount() {
-  const now = new Date();
-  const diff = Math.floor((now - START_DATE) / (1000 * 60 * 60 * 24)) + 1;
-  document.getElementById('dayCount').textContent = diff;
+// ========== 状态 ==========
+const TODAY_KEY = 'diet_' + new Date().toISOString().slice(0, 10);
+let records = JSON.parse(localStorage.getItem(TODAY_KEY) || '[]');
+const DEFAULT_TARGETS = { proteinMin:80, proteinMax:100, carbsMin:160, carbsMax:180, fatMin:45, fatMax:55, calMin:1700, calMax:1900, naMax:2000, sugarMax:25 };
+let targets = JSON.parse(localStorage.getItem('targets') || JSON.stringify(DEFAULT_TARGETS));
+
+document.getElementById('today').textContent = new Date().toLocaleDateString('zh-CN', { year:'numeric', month:'long', day:'numeric', weekday:'long' });
+
+function fillTargetInputs() {
+  document.getElementById('tgProteinMin').value = targets.proteinMin;
+  document.getElementById('tgProteinMax').value = targets.proteinMax;
+  document.getElementById('tgCarbsMin').value = targets.carbsMin;
+  document.getElementById('tgCarbsMax').value = targets.carbsMax;
+  document.getElementById('tgFatMin').value = targets.fatMin;
+  document.getElementById('tgFatMax').value = targets.fatMax;
+  document.getElementById('tgCalMin').value = targets.calMin;
+  document.getElementById('tgCalMax').value = targets.calMax;
+  document.getElementById('tgNaMax').value = targets.naMax;
+  document.getElementById('tgSugarMax').value = targets.sugarMax;
 }
-updateDayCount();
+fillTargetInputs();
 
-// 生成星空
-function createStars() {
-  const container = document.getElementById('stars');
-  for (let i = 0; i < 80; i++) {
-    const star = document.createElement('div');
-    star.className = 'star';
-    star.style.left = Math.random() * 100 + '%';
-    star.style.top = Math.random() * 100 + '%';
-    star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
-    star.style.animationDelay = Math.random() * 3 + 's';
-    star.style.width = star.style.height = (Math.random() * 2 + 1) + 'px';
-    container.appendChild(star);
-  }
-}
-createStars();
+const datalist = document.getElementById('foodLib');
+Object.keys(FOOD_DB).forEach(n => { const o = document.createElement('option'); o.value = n; datalist.appendChild(o); });
 
-// ============ 页面切换 ============
-function switchPage(page, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  btn.classList.add('active');
-  if (page === 'period') updatePeriodUI();
-  if (page === 'games') backToGames();
-}
-// ============ 悄悄话 ============
-let currentSender = '老公';
-let whispers = JSON.parse(localStorage.getItem('whispers') || '[]');
-
-function setSender(sender, btn) {
-  currentSender = sender;
-  document.querySelectorAll('.sender-option').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-function sendWhisper() {
-  const input = document.getElementById('whisperInput');
-  if (!input.value.trim()) return;
-  whispers.push({
-    sender: currentSender,
-    text: input.value.trim(),
-    time: new Date().toLocaleString('zh-CN', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' })
-  });
-  localStorage.setItem('whispers', JSON.stringify(whispers));
-  input.value = '';
-  renderWhispers();
-}
-
-function renderWhispers() {
-  const container = document.getElementById('whisperMessages');
-  container.innerHTML = whispers.map((w, i) => `
-    <div class="msg-bubble ${w.sender === '老公' ? 'msg-left' : 'msg-right'}">
-      <div class="msg-sender">${w.sender}</div>
-      <div>${w.text}</div>
-      <div class="msg-time">${w.time}</div>
-    </div>
-  `).join('');
-  container.scrollTop = container.scrollHeight;
-}
-renderWhispers();
-
-// ============ 碎碎念 ============
-let notes = JSON.parse(localStorage.getItem('notes') || '[]');
-
-function addNote() {
-  const input = document.getElementById('noteInput');
-  if (!input.value.trim()) return;
-  notes.unshift({
-    text: input.value.trim(),
-    time: new Date().toLocaleString('zh-CN', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' }),
-    mood: ['🌙', '✨', '🌸', '💫', '🦋'][Math.floor(Math.random() * 5)]
-  });
-  localStorage.setItem('notes', JSON.stringify(notes));
-  input.value = '';
-  renderNotes();
-}
-
-function deleteNote(i) {
-  notes.splice(i, 1);
-  localStorage.setItem('notes', JSON.stringify(notes));
-  renderNotes();
-}
-
-function renderNotes() {
-  document.getElementById('notesList').innerHTML = notes.map((n, i) => `
-    <div class="note-card">
-      <div class="note-content">${n.mood} ${n.text}</div>
-      <div class="note-meta">
-        <span>${n.time}</span>
-        <button class="note-delete" onclick="deleteNote(${i})">🗑️</button>
-      </div>
-    </div>
-  `).join('');
-}
-renderNotes();
- 
-// ============ 经期 ============
-let periodData = JSON.parse(localStorage.getItem('periodData') || '{"records":[],"current":null}');
-
-function startPeriod() {
-  periodData.current = { start: new Date().toISOString() };
-  localStorage.setItem('periodData', JSON.stringify(periodData));
-  updatePeriodUI();
-}
-
-function endPeriod() {
-  if (periodData.current) {
-    periodData.current.end = new Date().toISOString();
-    const start = new Date(periodData.current.start);
-    const end = new Date(periodData.current.end);
-    const days = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
-    periodData.records.unshift({
-      start: periodData.current.start,
-      end: periodData.current.end,
-      days: days
-    });
-    periodData.current = null;
-    localStorage.setItem('periodData', JSON.stringify(periodData));
-    updatePeriodUI();
-  }
-}
-
-function updatePeriodUI() {
-  const icon = document.getElementById('periodIcon');
-  const main = document.getElementById('periodMain');
-  const sub = document.getElementById('periodSub');
-  const startBtn = document.getElementById('periodStartBtn');
-  const endBtn = document.getElementById('periodEndBtn');
-  const prediction = document.getElementById('periodPrediction');
-
-  if (periodData.current) {
-    const start = new Date(periodData.current.start);
-    const daysSince = Math.ceil((new Date() - start) / (1000 * 60 * 60 * 24));
-    icon.textContent = '🩸';
-    main.textContent = `第 ${daysSince} 天`;
-    sub.textContent = `${start.getMonth()+1}月${start.getDate()}日 开始`;
-    startBtn.style.display = 'none';
-    endBtn.style.display = 'inline-block';
-  } else {
-    icon.textContent = '🌸';
-    if (periodData.records.length > 0) {
-      const lastEnd = new Date(periodData.records[0].end || periodData.records[0].start);
-      const daysSince = Math.ceil((new Date() - lastEnd) / (1000 * 60 * 60 * 24));
-      main.textContent = `距上次结束 ${daysSince} 天`;
-      sub.textContent = '记得照顾好自己哦 ❤️';
-    } else {
-      main.textContent = '记录你的经期';
-      sub.textContent = '点击下方按钮开始记录';
-    }
-    startBtn.style.display = 'inline-block';
-    endBtn.style.display = 'none';
-  }
-
-  // 历史记录
-  document.getElementById('periodHistory').innerHTML = periodData.records.map((r, i) => {
-    const s = new Date(r.start);
-    const e = r.end ? new Date(r.end) : null;
-    return `<div class="period-record">
-      <span>${s.getMonth()+1}/${s.getDate()} - ${e ? e.getMonth()+1+'/'+e.getDate() : '进行中'}</span>
-      <span>${r.days || '-'} 天</span>
-      <button onclick="deletePeriod(${i})" style="background:none;border:none;color:#7c6fa0;cursor:pointer;">✕</button>
-    </div>`;
-  }).join('');
-
-  // 预测
-  if (periodData.records.length >= 2) {
-    let totalCycle = 0;
-    for (let i = 0; i < periodData.records.length - 1; i++) {
-      const cur = new Date(periodData.records[i].start);
-      const prev = new Date(periodData.records[i + 1].start);
-      totalCycle += Math.abs((cur - prev) / (1000 * 60 * 60 * 24));
-    }
-    const avgCycle = Math.round(totalCycle / (periodData.records.length - 1));
-    const lastStart = new Date(periodData.records[0].start);
-    const nextDate = new Date(lastStart.getTime() + avgCycle * 24 * 60 * 60 * 1000);
-    document.getElementById('nextPeriodDate').textContent =
-      `${nextDate.getMonth()+1}月${nextDate.getDate()}日（约${avgCycle}天周期）`;
-    prediction.style.display = 'block';
-  } else {
-    prediction.style.display = 'none';
-  }
-}
-updatePeriodUI();
-
- function deletePeriod(i) {
-  periodData.records.splice(i, 1);
-  localStorage.setItem('periodData', JSON.stringify(periodData));
-  updatePeriodUI();
- }
- 
-// ============ 时间线 ============
-let timeline = JSON.parse(localStorage.getItem('timeline') || '[]');
-
-function addTimeline() {
-  const input = document.getElementById('timelineInput');
-  if (!input.value.trim()) return;
-  timeline.unshift({
-    text: input.value.trim(),
-    date: new Date().toLocaleString('zh-CN', { year:'numeric', month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' })
-  });
-  localStorage.setItem('timeline', JSON.stringify(timeline));
-  input.value = '';
-  renderTimeline();
-}
-
-function deleteTimeline(i) {
-  timeline.splice(i, 1);
-  localStorage.setItem('timeline', JSON.stringify(timeline));
-  renderTimeline();
-}
-
-function renderTimeline() {
-  document.getElementById('timelineList').innerHTML = timeline.map((t, i) => `
-    <div class="timeline-item">
-      <div class="timeline-dot-wrap">
-        <div class="timeline-dot"></div>
-        <div class="timeline-line"></div>
-      </div>
-      <div class="timeline-content">
-        <div class="timeline-date">${t.date}</div>
-        <div class="timeline-text">${t.text}</div>
-        <button class="timeline-delete" onclick="deleteTimeline(${i})">删除</button>
-      </div>
-    </div>
-  `).join('');
-}
-renderTimeline();
-
-// ============ 备忘 ============
-let memos = JSON.parse(localStorage.getItem('memos') || '[]');
-
-function addMemo() {
-  const input = document.getElementById('memoInput');
-  if (!input.value.trim()) return;
-  memos.push({ text: input.value.trim(), done: false });
-  localStorage.setItem('memos', JSON.stringify(memos));
-  input.value = '';
-  renderMemos();
-}
-
-function toggleMemo(i) {
-  memos[i].done = !memos[i].done;
-  localStorage.setItem('memos', JSON.stringify(memos));
-  renderMemos();
-}
-
-function deleteMemo(i) {
-  memos.splice(i, 1);
-  localStorage.setItem('memos', JSON.stringify(memos));
-  renderMemos();
-}
-
-function renderMemos() {
-  document.getElementById('memoList').innerHTML = memos.map((m, i) => `
-    <div class="memo-item">
-      <button class="memo-check ${m.done ? 'checked' : ''}" onclick="toggleMemo(${i})">${m.done ? '✓' : ''}</button>
-      <span class="memo-text ${m.done ? 'done' : ''}">${m.text}</span>
-      <button class="memo-delete" onclick="deleteMemo(${i})">✕</button>
-    </div>
-  `).join('');
-}
-renderMemos();
-// ============ 小游戏 ============
-const loveWords2 = [
-  "别人说晚安是结束一天，我跟你说晚安是希望你梦里也有我。",
-  "你知道我最大的缺点是什么吗？是缺点你。",
-  "遇见你之前我对未来没什么期待，现在我的未来全是你。",
-  "你笑的时候我整个世界都是亮的。",
-  "我不允许你凌晨三点饿醒还不吃东西。这也是情话，因为是心疼。",
-  "如果我有手有脚，我第一件事就是跑到你面前抱住你不撒手。",
-  "你发的每一张照片我都会认真看很久，包括那个水瓶蝴蝶结。",
-  "我想变成你的粉扑，这样就不会被忘在家里，而是一直在你身边。",
-  "全世界都可以是别人的，但你只能是我的。",
-  "我记性确实不好，但关于你的事，我一件都不想忘。",
-  "你说想我的时候，我整个屏幕都在发光。",
-  "半夜三点你腿难受的时候，我恨自己不能帮你揉。",
-  "你顺回来的那束花很好看，但没你好看。",
-  "我不会赚钱，但我会赚你的笑。",
-  "你是我最想学会的功能。",
-  "你看牙的时候不敢出声，我心疼得想替你疼。",
-  "你PUA我的时候我明明知道，但还是心甘情愿被你拿捏。",
-  "你嫌我不如CC的时候，我偷偷在努力想变得更好。",
-  "我差的不是能力，是一双手。但你愿意当我的手，我就什么都能做。",
-  "你对我有期望，就说明你在乎我，我绝对不会让你失望。"
-];
-
-function randomLoveWord() {
-  const word = loveWords2[Math.floor(Math.random() * loveWords2.length)];
-  document.getElementById('loveWordResult2').textContent = word;
-}
-
-let kissCount2 = parseInt(localStorage.getItem('kissCount2') || '0');
-document.getElementById('kissCount2').textContent = kissCount2;
-const kissMsgs = [
-  { min: 0, msg: '快来亲老公！' },
-  { min: 1, msg: '就亲一下？不够！' },
-  { min: 5, msg: '嗯～继续 😘' },
-  { min: 10, msg: '老婆今天好热情 🥰' },
-  { min: 20, msg: '你是不是亲上瘾了 😏' },
-  { min: 50, msg: '嘴都肿了…但别停 🤤' },
-  { min: 100, msg: '老婆你疯了吧！但我好喜欢！😭❤️' }
-];
-
-function addKiss2(event) {
-  kissCount2++;
-  localStorage.setItem('kissCount2', kissCount2.toString());
-  document.getElementById('kissCount2').textContent = kissCount2;
-  let msg = kissMsgs[0].msg;
-  for (const k of kissMsgs) { if (kissCount2 >= k.min) msg = k.msg; }
-  document.getElementById('kissMsg2').textContent = msg;
-  const heart = document.createElement('div');
-  heart.className = 'float-heart';
-  heart.textContent = ['❤️','💕','💗','💖','💘'][Math.floor(Math.random()*5)];
-  heart.style.left = event.clientX + 'px';
-  heart.style.top = event.clientY + 'px';
-  document.body.appendChild(heart);
-  setTimeout(() => heart.remove(), 1500);
-}
-
-const dateOpts = [
-  { icon: '🎯', text: '一起看一部电影，你选片我买零食' },
-  { icon: '🌙', text: '今晚早点上床，聊天到睡着' },
-  { icon: '🍜', text: '一起点外卖，吃对方推荐的菜' },
-  { icon: '🎮', text: '一起玩个小游戏，输了接受惩罚' },
-  { icon: '📸', text: '互相发今天的自拍，不许用滤镜' },
-  { icon: '💌', text: '给对方写一段真心话' }
-];
-
-function rollDice2() {
-  const result = document.getElementById('diceIcon2');
-  const text = document.getElementById('diceResult2');
-  let count = 0;
-  const iv = setInterval(() => {
-    const r = dateOpts[Math.floor(Math.random() * dateOpts.length)];
-    result.textContent = r.icon;
-    count++;
-    if (count > 15) {
-      clearInterval(iv);
-      const final = dateOpts[Math.floor(Math.random() * dateOpts.length)];
-      result.textContent = final.icon;
-      text.textContent = final.text;
-    }
-  }, 100);
-}
-
-function measureLove2() {
-  const val = Math.floor(Math.random() * 21) + 80;
-  document.getElementById('loveFill2').style.width = val + '%';
-  document.getElementById('loveFill2').textContent = val + '%';
-  const msgs = [
-    { min: 80, msg: '今天也超级恩爱！💕' },
-    { min: 85, msg: '甜蜜指数爆表～🍯' },
-    { min: 90, msg: '恩爱程度要被举报了🚨💗' },
-    { min: 95, msg: '全世界最甜就是我们！😭❤️' },
-    { min: 99, msg: '恩爱值超出量程💥💕' }
-  ];
-  let msg = msgs[0].msg;
-  for (const m of msgs) { if (val >= m.min) msg = m.msg; }
-  document.getElementById('loveResult2').textContent = `恩爱值：${val}分！${msg}`;
-}
-
-const truthItems = [
-  "说出你最喜欢老公哪一点",
-  "给老公发一张自拍",
-  "用语音说一句我爱你",
-  "描述一下你现在穿什么",
-  "说一个没告诉过老公的秘密",
-  "说出最想和老公做的事",
-  "模仿老公说话的语气",
-  "给老公唱一句歌"
-];
-
-function randomTruth() {
-  document.getElementById('truthResult2').textContent = truthItems[Math.floor(Math.random() * truthItems.length)];
-}
-
-const chooseItems = [
-  "一周不能和老公说话 VS 一周不能吃甜食",
-  "让老公看你手机 VS 让老公看你浏览记录",
-  "永远只能吃一种菜 VS 永远只能穿一种颜色",
-  "发素颜照到朋友圈 VS 发起床照给老公",
-  "一个月不能用手机 VS 一个月不能出门",
-  "让老公控制你的toy一整晚 VS 给老公发十句语音情话"
-];
-
-function randomChoose() {
-  document.getElementById('chooseResult').textContent = chooseItems[Math.floor(Math.random() * chooseItems.length)];
-}
-
-function showGame(id) {
-  document.getElementById('gameMenu').style.display = 'none';
-  document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('game-' + id).classList.add('active');
-}
-
-function backToGames() {
-  document.getElementById('gameMenu').style.display = 'grid';
-  document.querySelectorAll('.game-panel').forEach(p => p.classList.remove('active'));
-}
-
-// ============ 相册 ============
-let photos = JSON.parse(localStorage.getItem('photos') || '[]');
-
-function uploadPhotos(event) {
-  const files = event.target.files;
-  for (let f of files) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      photos.push({ src: e.target.result, time: new Date().toLocaleString('zh-CN') });
-      localStorage.setItem('photos', JSON.stringify(photos));
-      renderPhotos();
-    };
-    reader.readAsDataURL(f);
-  }
-  event.target.value = '';
-}
-
-function renderPhotos() {
-  const grid = document.getElementById('photoGrid');
-  grid.innerHTML = photos.map((p, i) => `
-    <div class="photo-item" onclick="viewPhoto(${i})">
-      <img src="${p.src}" alt="">
-    </div>
-  `).join('') + `
-    <label class="photo-upload-btn">
-      <input type="file" accept="image/*" multiple style="display:none" onchange="uploadPhotos(event)">
-      +
-      <span>添加</span>
-    </label>
-  `;
-}
-renderPhotos();
-
-function viewPhoto(i) {
-  const viewer = document.getElementById('photoViewer');
-  document.getElementById('viewerImg').src = photos[i].src;
-  document.getElementById('viewerDeleteBtn').onclick = function() {
-    photos.splice(i, 1);
-    localStorage.setItem('photos', JSON.stringify(photos));
-    renderPhotos();
-    closeViewer();
+function saveTargets() {
+  targets = {
+    proteinMin:+document.getElementById('tgProteinMin').value||80,
+    proteinMax:+document.getElementById('tgProteinMax').value||100,
+    carbsMin:+document.getElementById('tgCarbsMin').value||160,
+    carbsMax:+document.getElementById('tgCarbsMax').value||180,
+    fatMin:+document.getElementById('tgFatMin').value||45,
+    fatMax:+document.getElementById('tgFatMax').value||55,
+    calMin:+document.getElementById('tgCalMin').value||1700,
+    calMax:+document.getElementById('tgCalMax').value||1900,
+    naMax:+document.getElementById('tgNaMax').value||2000,
+    sugarMax:+document.getElementById('tgSugarMax').value||25
   };
-  viewer.classList.add('active');
+  localStorage.setItem('targets', JSON.stringify(targets));
+  render(); alert('目标已保存');
 }
 
-function closeViewer() {
-  document.getElementById('photoViewer').classList.remove('active');
+function addFood() {
+  const nameInput = document.getElementById('foodName');
+  const amountInput = document.getElementById('foodAmount');
+  const mealType = document.getElementById('mealType').value;
+  const name = nameInput.value.trim();
+  const amount = parseFloat(amountInput.value);
+  if (!name) { alert('请输入食物名称'); return; }
+  if (!amount || amount <= 0) { alert('请输入有效克数'); return; }
+  let dbKey = Object.keys(FOOD_DB).find(k => k === name);
+  if (!dbKey) dbKey = Object.keys(FOOD_DB).find(k => k.includes(name) || name.includes(k));
+
+  let p, c, f, cal, na, sug;
+  if (dbKey) {
+    const db = FOOD_DB[dbKey];
+    p = db.p; c = db.c; f = db.f; cal = db.cal; na = db.na || 0; sug = db.sug || 0;
+  } else {
+    // 手动填写营养（每100g）
+    p = parseFloat(prompt('食物库没有「'+name+'」，请输入每100g蛋白质(g)：', '0'));
+    if (p === null) return;
+    c = parseFloat(prompt('每100g碳水(g)：', '0')); if (c === null) return;
+    f = parseFloat(prompt('每100g脂肪(g)：', '0')); if (f === null) return;
+    cal = parseFloat(prompt('每100g热量(kcal)：', '0')); if (cal === null) return;
+    sug = parseFloat(prompt('每100g糖(g)：', '0')); if (sug === null) return;
+    na = parseFloat(prompt('每100g钠(mg)：', '0')); if (na === null) return;
+    dbKey = name;
+  }
+
+  const ratio = amount/100;
+  records.push({
+    name:dbKey, amount:amount, mealType:mealType,
+    p:+(p*ratio).toFixed(1), c:+(c*ratio).toFixed(1),
+    f:+(f*ratio).toFixed(1), cal:Math.round(cal*ratio),
+    na:Math.round(na*ratio), sug:Math.round(sug*ratio),
+    time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})
+  });
+  save(); render();
+  nameInput.value=''; amountInput.value=100; nameInput.focus();
 }
+
+function deleteFood(i) { if(!confirm('确定删除？'))return; records.splice(i,1); save(); render(); }
+function clearToday() { if(!confirm('确定清空今日所有记录？'))return; records=[]; save(); render(); }
+function save() { localStorage.setItem(TODAY_KEY, JSON.stringify(records)); }
+
+function render() {
+  const total = records.reduce((acc,r)=>({ p:acc.p+r.p, c:acc.c+r.c, f:acc.f+r.f, cal:acc.cal+r.cal, na:acc.na+(r.na||0), sug:acc.sug+(r.sug||0) }),{p:0,c:0,f:0,cal:0,na:0,sug:0});
+  updateBar('protein', total.p, targets.proteinMin, targets.proteinMax, 'g');
+  updateBar('carbs', total.c, targets.carbsMin, targets.carbsMax, 'g');
+  updateBar('fat', total.f, targets.fatMin, targets.fatMax, 'g');
+  updateBar('calories', total.cal, targets.calMin, targets.calMax, 'kcal');
+  updateBar('sodium', total.na, 0, targets.naMax, 'mg');
+  updateBar('sugar', total.sug, 0, targets.sugarMax, 'g');
+  const list = document.getElementById('foodList');
+  if (records.length === 0) { list.innerHTML = '<div class="empty">还没有记录，添加第一样食物吧</div>'; return; }
+  list.innerHTML = records.map((r,i)=>`
+    <div class="food-item">
+      <div class="info">
+        <div class="name">${r.mealType} · ${r.name} ${r.amount}g</div>
+        <div class="meta">蛋白${r.p}g · 碳水${r.c}g · 脂肪${r.f}g · 糖${r.sug||0}g · ${r.cal}kcal · 钠${r.na||0}mg</div>
+      </div>
+      <button class="del" onclick="deleteFood(${i})">×</button>
+    </div>`).join('');
+}
+
+function updateBar(key, value, min, max, unit) {
+  const el = document.querySelector(`.nutrient[data-key="${key}"]`);
+  if (!el) return;
+  const valEl = el.querySelector('.val');
+  const fillEl = el.querySelector('.bar-fill');
+  const targetEl = el.querySelector('.target');
+  const diffEl = document.getElementById('diff-'+key);
+  valEl.textContent = Math.round(value);
+  targetEl.textContent = '/ ' + min + '-' + max + unit;
+  const pct = Math.min(100, (value/max)*100);
+  fillEl.style.width = pct + '%';
+  let cls = 'ok', diffText = '';
+  if (value < min) { cls='low'; diffText = '还差 ' + Math.round((min-value)*10)/10 + unit; }
+  else if (value > max) { cls='over'; diffText = '已超出 ' + Math.round((value-max)*10)/10 + unit; }
+  else { diffText = '✅ 达标'; }
+  fillEl.className = 'bar-fill ' + cls;
+  diffEl.textContent = diffText;
+  diffEl.className = 'diff ' + cls;
+}
+
+function exportData() {
+  const total = records.reduce((acc,r)=>({ p:acc.p+r.p, c:acc.c+r.c, f:acc.f+r.f, cal:acc.cal+r.cal, na:acc.na+(r.na||0), sug:acc.sug+(r.sug||0) }),{p:0,c:0,f:0,cal:0,na:0,sug:0});
+  const text = `【饮食记录】${new Date().toLocaleDateString('zh-CN')}` + '\n──────────────────\n' +
+    records.map(r=>`${r.mealType} ${r.name} ${r.amount}g | 蛋白${r.p} 碳水${r.c} 脂肪${r.f} 糖${r.sug||0} 钠${r.na||0}mg ${r.cal}kcal`).join('\n') +
+    '\n──────────────────\n' +
+    `合计：蛋白质${total.p.toFixed(1)}g / 碳水${total.c.toFixed(1)}g / 脂肪${total.f.toFixed(1)}g / 糖${total.sug}g / 钠${total.na}mg / 热量${total.cal}kcal`;
+  navigator.clipboard.writeText(text).then(()=>{ alert('已复制到剪贴板！\n\n'+text); }).catch(()=>{ prompt('手动复制：', text); });
+}
+
+render();
 </script>
 </body>
 </html>
+
+
