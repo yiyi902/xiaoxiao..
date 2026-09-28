@@ -6,30 +6,16 @@
   <title>饮食记录器</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", sans-serif;
-      background: #f7f4ef; color: #2d2a26; padding: 20px; padding-bottom: 100px;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", sans-serif; background: #f7f4ef; color: #2d2a26; padding: 20px; padding-bottom: 100px; }
     .header { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
     .header .icon { font-size: 28px; }
     h1 { font-size: 22px; font-weight: 700; }
     .date { color: #a0998e; font-size: 13px; margin-bottom: 20px; }
-
-    .card {
-      background: #fff; border-radius: 20px; padding: 18px;
-      margin-bottom: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-    }
+    .card { background: #fff; border-radius: 20px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
     .card h2 { font-size: 16px; margin-bottom: 14px; font-weight: 600; }
-
-    /* 目标设置 */
     .targets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .target-item label { font-size: 12px; color: #a0998e; display: block; margin-bottom: 4px; }
-    .target-item input {
-      width: 100%; font-size: 15px; padding: 10px; border-radius: 12px;
-      border: 1px solid #eee; background: #faf8f5; font-weight: 600;
-    }
-
-    /* 营养进度 */
+    .target-item input { width: 100%; font-size: 15px; padding: 10px; border-radius: 12px; border: 1px solid #eee; background: #faf8f5; font-weight: 600; }
     .nutrient { margin-bottom: 16px; }
     .nutrient:last-child { margin-bottom: 0; }
     .nutrient-header { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; margin-bottom: 6px; }
@@ -44,56 +30,32 @@
     .bar-fill.ok { background: linear-gradient(90deg,#34a853,#4caf7a); }
     .bar-fill.low { background: linear-gradient(90deg,#f59e0b,#fbbf24); }
     .bar-fill.over { background: linear-gradient(90deg,#e5484d,#f87171); }
-
-    /* 表单 */
     .form-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
     input, select, button { font-size: 15px; padding: 11px; border-radius: 12px; border: 1px solid #eee; font-family: inherit; background: #faf8f5; }
     input:focus, select:focus { outline: none; border-color: #34a853; background: #fff; }
     #foodName { flex: 1; min-width: 140px; }
     #foodAmount { width: 68px; }
     #foodUnit { width: 70px; }
-    #mealType { width: 80px; background: #faf8f5; }
-    .btn-add {
-      background: linear-gradient(135deg,#34a853,#2e8b57); color: #fff; border: none;
-      padding: 13px; border-radius: 14px; font-weight: 600; cursor: pointer;
-      width: 100%; margin-top: 4px; font-size: 16px;
-    }
+    #mealType { width: 80px; }
+    .btn-add { background: linear-gradient(135deg,#34a853,#2e8b57); color: #fff; border: none; padding: 13px; border-radius: 14px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 4px; font-size: 16px; }
     .btn-add:active { opacity: 0.85; }
     .hint { font-size: 12px; color: #b5ada1; margin-top: 8px; }
-
-    /* 食物列表 */
     .food-list { margin-top: 6px; }
-    .food-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 0; border-bottom: 1px solid #f5f2ed; font-size: 14px;
-    }
+    .food-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f5f2ed; font-size: 14px; }
     .food-item:last-child { border-bottom: none; }
     .food-item .info { flex: 1; min-width: 0; }
     .food-item .name { font-weight: 600; }
     .food-item .meta { color: #a0998e; font-size: 12px; margin-top: 3px; }
     .food-item .btns { display: flex; gap: 2px; flex-shrink: 0; }
-    .food-item .btn-sm {
-      background: none; border: none; font-size: 16px; cursor: pointer; padding: 4px 6px;
-    }
+    .food-item .btn-sm { background: none; border: none; font-size: 18px; cursor: pointer; padding: 4px 6px; }
     .food-item .btn-edit { color: #2196f3; }
-    .food-item .btn-del { color: #e5484d; font-size: 20px; }
+    .food-item .btn-del { color: #e5484d; }
     .empty { color: #c5bdb0; text-align: center; padding: 24px 0; font-size: 14px; }
-
-    /* 历史 */
     #historyDate { background: #faf8f5; border-radius: 12px; border: 1px solid #eee; padding: 10px; }
     .summary-line { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f7f4ef; font-size: 13px; color: #6b6458; }
     .summary-line:last-child { border-bottom: none; }
-
-    /* 底部 */
-    .bottom-bar {
-      position: fixed; bottom: 0; left: 0; right: 0; background: #fff;
-      padding: 12px 20px; box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
-      display: flex; gap: 10px;
-    }
-    .bottom-bar button {
-      flex: 1; padding: 13px; border-radius: 14px; border: none;
-      font-weight: 600; font-size: 15px; cursor: pointer;
-    }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 12px 20px; box-shadow: 0 -2px 12px rgba(0,0,0,0.06); display: flex; gap: 10px; }
+    .bottom-bar button { flex: 1; padding: 13px; border-radius: 14px; border: none; font-weight: 600; font-size: 15px; cursor: pointer; }
     .btn-export { background: #2196f3; color: #fff; }
     .btn-clear { background: #f1ece4; color: #6b6458; }
   </style>
@@ -103,7 +65,7 @@
   <div class="date" id="today"></div>
 
   <div class="card">
-    <h2>🎯 每日目标</h2>
+    <h2>🎯 今日目标</h2>
     <div class="targets-grid">
       <div class="target-item"><label>蛋白质下限 (g)</label><input id="tgProtein" type="number" value="100"></div>
       <div class="target-item"><label>蛋白质上限 (g)</label><input id="tgProteinMax" type="number" value="120"></div>
@@ -121,36 +83,12 @@
 
   <div class="card">
     <h2>📊 今日营养</h2>
-    <div class="nutrient" data-key="protein">
-      <div class="nutrient-header"><span>蛋白质</span><span><span class="val">0</span>g <span class="target"></span></span></div>
-      <div class="diff" id="diff-protein"></div>
-      <div class="bar"><div class="bar-fill ok" style="width:0%"></div></div>
-    </div>
-    <div class="nutrient" data-key="carbs">
-      <div class="nutrient-header"><span>碳水</span><span><span class="val">0</span>g <span class="target"></span></span></div>
-      <div class="diff" id="diff-carbs"></div>
-      <div class="bar"><div class="bar-fill ok" style="width:0%"></div></div>
-    </div>
-    <div class="nutrient" data-key="fat">
-      <div class="nutrient-header"><span>脂肪</span><span><span class="val">0</span>g <span class="target"></span></span></div>
-      <div class="diff" id="diff-fat"></div>
-      <div class="bar"><div class="bar-fill ok" style="width:0%"></div></div>
-    </div>
-    <div class="nutrient" data-key="calories">
-      <div class="nutrient-header"><span>热量</span><span><span class="val">0</span>kcal <span class="target"></span></span></div>
-      <div class="diff" id="diff-calories"></div>
-      <div class="bar"><div class="bar-fill ok" style="width:0%"></div></div>
-    </div>
-    <div class="nutrient" data-key="sodium">
-      <div class="nutrient-header"><span>钠</span><span><span class="val">0</span>mg <span class="target"></span></span></div>
-      <div class="diff" id="diff-sodium"></div>
-      <div class="bar"><div class="bar-fill ok" style="width:0%"></div></div>
-    </div>
-    <div class="nutrient" data-key="sugar">
-      <div class="nutrient-header"><span>糖</span><span><span class="val">0</span>g <span class="target"></span></span></div>
-      <div class="diff" id="diff-sugar"></div>
-      <div class="bar"><div class="bar-fill ok" style="width:0%"></div></div>
-    </div>
+    <div class="nutrient" data-key="protein"><div class="nutrient-header"><span>蛋白质</span><span><span class="val">0</span>g <span class="target"></span></span></div><div class="diff" id="diff-protein"></div><div class="bar"><div class="bar-fill ok" style="width:0%"></div></div></div>
+    <div class="nutrient" data-key="carbs"><div class="nutrient-header"><span>碳水</span><span><span class="val">0</span>g <span class="target"></span></span></div><div class="diff" id="diff-carbs"></div><div class="bar"><div class="bar-fill ok" style="width:0%"></div></div></div>
+    <div class="nutrient" data-key="fat"><div class="nutrient-header"><span>脂肪</span><span><span class="val">0</span>g <span class="target"></span></span></div><div class="diff" id="diff-fat"></div><div class="bar"><div class="bar-fill ok" style="width:0%"></div></div></div>
+    <div class="nutrient" data-key="calories"><div class="nutrient-header"><span>热量</span><span><span class="val">0</span>kcal <span class="target"></span></span></div><div class="diff" id="diff-calories"></div><div class="bar"><div class="bar-fill ok" style="width:0%"></div></div></div>
+    <div class="nutrient" data-key="sodium"><div class="nutrient-header"><span>钠</span><span><span class="val">0</span>mg <span class="target"></span></span></div><div class="diff" id="diff-sodium"></div><div class="bar"><div class="bar-fill ok" style="width:0%"></div></div></div>
+    <div class="nutrient" data-key="sugar"><div class="nutrient-header"><span>糖</span><span><span class="val">0</span>g <span class="target"></span></span></div><div class="diff" id="diff-sugar"></div><div class="bar"><div class="bar-fill ok" style="width:0%"></div></div></div>
   </div>
 
   <div class="card">
@@ -159,24 +97,9 @@
       <input id="foodName" placeholder="食物名称">
       <input id="foodAmount" type="number" placeholder="数量" value="1">
       <select id="foodUnit">
-        <option value="g">克(g)</option>
-        <option value="个">个</option>
-        <option value="根">根</option>
-        <option value="片">片</option>
-        <option value="盒">盒</option>
-        <option value="瓶">瓶</option>
-        <option value="杯">杯</option>
-        <option value="碗">碗</option>
-        <option value="勺">勺</option>
-        <option value="包">包</option>
-        <option value="份">份</option>
+        <option value="g">克(g)</option><option value="个">个</option><option value="根">根</option><option value="片">片</option><option value="盒">盒</option><option value="瓶">瓶</option><option value="杯">杯</option><option value="碗">碗</option><option value="勺">勺</option><option value="包">包</option><option value="份">份</option>
       </select>
-      <select id="mealType">
-        <option value="早餐">早餐</option>
-        <option value="午餐">午餐</option>
-        <option value="晚餐">晚餐</option>
-        <option value="加餐">加餐</option>
-      </select>
+      <select id="mealType"><option>早餐</option><option>午餐</option><option>晚餐</option><option>加餐</option></select>
     </div>
     <button class="btn-add" onclick="addFood()">添加</button>
     <div class="hint">填写这一份的营养（蛋白/碳水/脂肪/热量/糖/钠）</div>
@@ -189,18 +112,10 @@
 
   <div class="card">
     <h2>📅 历史与总结</h2>
-    <div class="form-row">
-      <input id="historyDate" type="date">
-      <button class="btn-add" style="width:auto;margin:0;padding:11px 16px" onclick="viewHistory()">查看</button>
-    </div>
+    <div class="form-row"><input id="historyDate" type="date"><button class="btn-add" style="width:auto;margin:0;padding:11px 16px" onclick="viewHistory()">查看</button></div>
     <div id="historyView" class="food-list" style="margin-top:8px"></div>
-    <div style="margin-top:12px;padding-top:12px;border-top:1px solid #f5f2ed">
-      <h2 style="font-size:14px;margin-bottom:8px">📈 最近7天</h2>
-      <div id="weekSummary" style="font-size:13px"></div>
-    </div>
-    <div style="margin-top:12px">
-      <button class="btn-add" style="background:#f59e0b" onclick="exportAll()">📤 导出全部数据（备份）</button>
-    </div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid #f5f2ed"><h2 style="font-size:14px;margin-bottom:8px">📈 最近7天</h2><div id="weekSummary" style="font-size:13px"></div></div>
+    <div style="margin-top:12px"><button class="btn-add" style="background:#f59e0b" onclick="exportAll()">📤 导出全部数据（备份）</button></div>
   </div>
 
   <div class="bottom-bar">
@@ -209,10 +124,19 @@
   </div>
 
 <script>
-const TODAY_KEY = 'diet_' + new Date().toISOString().slice(0, 10);
+const todayStr = () => new Date().toISOString().slice(0, 10);
+const TODAY_KEY = 'diet_' + todayStr();
 let records = JSON.parse(localStorage.getItem(TODAY_KEY) || '[]');
+
 const DEFAULT_TARGETS = { protein:100, proteinMax:120, carbs:160, carbsMax:180, fat:45, fatMax:55, cal:1700, calMax:1900, na:2000, sugar:25 };
-let targets = JSON.parse(localStorage.getItem('targets') || JSON.stringify(DEFAULT_TARGETS));
+
+// 获取某天的目标（每天独立），没有就返回默认
+function getTargets(dateStr) {
+  const key = 'targets_' + dateStr;
+  const saved = localStorage.getItem(key);
+  return saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULT_TARGETS));
+}
+let targets = getTargets(todayStr());
 
 document.getElementById('today').textContent = new Date().toLocaleDateString('zh-CN', { year:'numeric', month:'long', day:'numeric', weekday:'long' });
 
@@ -243,8 +167,8 @@ function saveTargets() {
     na:+document.getElementById('tgNa').value||2000,
     sugar:+document.getElementById('tgSugar').value||25
   };
-  localStorage.setItem('targets', JSON.stringify(targets));
-  render(); alert('目标已保存');
+  localStorage.setItem('targets_' + todayStr(), JSON.stringify(targets));
+  render(); alert('今日目标已保存');
 }
 
 function addFood() {
@@ -254,16 +178,34 @@ function addFood() {
   const mealType = document.getElementById('mealType').value;
   if (!name) { alert('请输入食物名称'); return; }
   if (!amount || amount <= 0) { alert('请输入有效数量'); return; }
-  const p = prompt('请输入「'+name+'」这一份的蛋白质(g)：', '0'); if (p === null) return;
-  const c = prompt('碳水(g)：', '0'); if (c === null) return;
-  const f = prompt('脂肪(g)：', '0'); if (f === null) return;
-  const cal = prompt('热量(kcal)：', '0'); if (cal === null) return;
-  const sug = prompt('糖(g)：', '0'); if (sug === null) return;
-  const na = prompt('钠(mg)：', '0'); if (na === null) return;
+
+  let p, c, f, cal, sug, na;
+  if (unit === 'g') {
+    // 克：填每100g的营养，自动按克数算
+    const pp = prompt('请输入「'+name+'」每100g的蛋白质(g)：', '0'); if (pp === null) return;
+    const cc = prompt('每100g碳水(g)：', '0'); if (cc === null) return;
+    const ff = prompt('每100g脂肪(g)：', '0'); if (ff === null) return;
+    const ca = prompt('每100g热量(kcal)：', '0'); if (ca === null) return;
+    const ss = prompt('每100g糖(g)：', '0'); if (ss === null) return;
+    const nn = prompt('每100g钠(mg)：', '0'); if (nn === null) return;
+    const ratio = amount/100;
+    p = (+pp)*ratio; c = (+cc)*ratio; f = (+ff)*ratio;
+    cal = (+ca)*ratio; sug = (+ss)*ratio; na = (+nn)*ratio;
+  } else {
+    // 非克：填这一笔的总量，不乘数量
+    const pp = prompt('请输入「'+name+'」的总蛋白质(g)：', '0'); if (pp === null) return;
+    const cc = prompt('总碳水(g)：', '0'); if (cc === null) return;
+    const ff = prompt('总脂肪(g)：', '0'); if (ff === null) return;
+    const ca = prompt('总热量(kcal)：', '0'); if (ca === null) return;
+    const ss = prompt('总糖(g)：', '0'); if (ss === null) return;
+    const nn = prompt('总钠(mg)：', '0'); if (nn === null) return;
+    p = +pp; c = +cc; f = +ff; cal = +ca; sug = +ss; na = +nn;
+  }
+
   records.push({
     name:name, amount:amount, unit:unit, mealType:mealType,
-    p:(+p)*amount, c:(+c)*amount, f:(+f)*amount,
-    cal:(+cal)*amount, sug:(+sug)*amount, na:(+na)*amount,
+    p:+p.toFixed(1), c:+c.toFixed(1), f:+f.toFixed(1),
+    cal:Math.round(cal), sug:+sug.toFixed(1), na:Math.round(na),
     time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})
   });
   save(); render();
@@ -271,24 +213,65 @@ function addFood() {
   document.getElementById('foodAmount').value=1;
 }
 
+// 编辑：菜单带出当前值，可选择改哪一项
 function editFood(i) {
   const r = records[i];
-  const np = prompt('修改名称：', r.name); if (np === null) return;
-  const nq = prompt('修改数量：', r.amount); if (nq === null) return;
-  const nu = prompt('修改单位(g/个/根/盒/杯/份...)：', r.unit||'g'); if (nu === null) return;
-  const pp = prompt('修改蛋白质(g)：', (r.p/r.amount).toFixed(1)); if (pp === null) return;
-  const cc = prompt('碳水(g)：', (r.c/r.amount).toFixed(1)); if (cc === null) return;
-  const ff = prompt('脂肪(g)：', (r.f/r.amount).toFixed(1)); if (ff === null) return;
-  const ca = prompt('热量(kcal)：', (r.cal/r.amount).toFixed(0)); if (ca === null) return;
-  const ss = prompt('糖(g)：', (r.sug/r.amount).toFixed(1)); if (ss === null) return;
-  const nn = prompt('钠(mg)：', (r.na/r.amount).toFixed(0)); if (nn === null) return;
-  const qty = parseFloat(nq)||r.amount;
-  records[i] = {
-    name:np, amount:qty, unit:nu, mealType:r.mealType,
-    p:(+pp)*qty, c:(+cc)*qty, f:(+ff)*qty,
-    cal:(+ca)*qty, sug:(+ss)*qty, na:(+nn)*qty,
-    time:r.time
-  };
+  const isG = (r.unit === 'g');
+  // 显示用的「每份/每100g」值
+  const showP = isG ? (r.p/r.amount*100).toFixed(1) : r.p.toFixed(1);
+  const showC = isG ? (r.c/r.amount*100).toFixed(1) : r.c.toFixed(1);
+  const showF = isG ? (r.f/r.amount*100).toFixed(1) : r.f.toFixed(1);
+  const showCal = isG ? (r.cal/r.amount*100).toFixed(0) : r.cal.toFixed(0);
+  const showSug = isG ? (r.sug/r.amount*100).toFixed(1) : r.sug.toFixed(1);
+  const showNa = isG ? (r.na/r.amount*100).toFixed(0) : r.na.toFixed(0);
+
+  const choice = prompt(
+    '要修改哪一项？（后面是当前值）\n' +
+    '1 名称：' + r.name + '\n' +
+    '2 数量：' + r.amount + '\n' +
+    '3 单位：' + (r.unit||'g') + '\n' +
+    '4 蛋白质：' + showP + 'g\n' +
+    '5 碳水：' + showC + 'g\n' +
+    '6 脂肪：' + showF + 'g\n' +
+    '7 热量：' + showCal + 'kcal\n' +
+    '8 糖：' + showSug + 'g\n' +
+    '9 钠：' + showNa + 'mg\n' +
+    '（输入数字）',
+    '1'
+  );
+  if (choice === null) return;
+
+  let name=r.name, qty=r.amount, unit=r.unit||'g';
+  // 当前「每100g」（g单位）或「总量」（非g单位）
+  let p = isG ? (r.p/r.amount*100) : r.p;
+  let c = isG ? (r.c/r.amount*100) : r.c;
+  let f = isG ? (r.f/r.amount*100) : r.f;
+  let cal = isG ? (r.cal/r.amount*100) : r.cal;
+  let sug = isG ? (r.sug/r.amount*100) : r.sug;
+  let na = isG ? (r.na/r.amount*100) : r.na;
+
+  switch (choice.trim()) {
+    case '1': name=prompt('新名称：', r.name); if(name===null)return; break;
+    case '2': qty=parseFloat(prompt('新数量：', r.amount)); if(isNaN(qty))return; break;
+    case '3': unit=prompt('新单位(g/个/根/盒/杯/份...)：', r.unit||'g'); if(unit===null)return; break;
+    case '4': p=prompt(isG?'每100g蛋白质(g)：':'总蛋白质(g)：', p); if(p===null)return; break;
+    case '5': c=prompt(isG?'每100g碳水(g)：':'总碳水(g)：', c); if(c===null)return; break;
+    case '6': f=prompt(isG?'每100g脂肪(g)：':'总脂肪(g)：', f); if(f===null)return; break;
+    case '7': cal=prompt(isG?'每100g热量(kcal)：':'总热量(kcal)：', cal); if(cal===null)return; break;
+    case '8': sug=prompt(isG?'每100g糖(g)：':'总糖(g)：', sug); if(sug===null)return; break;
+    case '9': na=prompt(isG?'每100g钠(mg)：':'总钠(mg)：', na); if(na===null)return; break;
+    default: alert('无效选择'); return;
+  }
+
+  // 按新单位重新计算
+  if (unit === 'g') {
+    const ratio = qty/100;
+    records[i] = { name:name, amount:qty, unit:unit, mealType:r.mealType,
+      p:(+p)*ratio, c:(+c)*ratio, f:(+f)*ratio, cal:(+cal)*ratio, sug:(+sug)*ratio, na:(+na)*ratio, time:r.time };
+  } else {
+    records[i] = { name:name, amount:qty, unit:unit, mealType:r.mealType,
+      p:+p, c:+c, f:+f, cal:+cal, sug:+sug, na:+na, time:r.time };
+  }
   save(); render();
 }
 
@@ -306,17 +289,36 @@ function render() {
   updateBar('sugar', total.sug, targets.sugar, targets.sugar, 'g', 'max');
   const list = document.getElementById('foodList');
   if (records.length === 0) { list.innerHTML = '<div class="empty">还没有记录，添加第一样食物吧</div>'; return; }
-  list.innerHTML = records.map((r,i)=>`
+
+  // 按餐次分组
+  const mealOrder = ['早餐','午餐','晚餐','加餐'];
+  const groups = {};
+  records.forEach((r, idx) => {
+    r._idx = idx;
+    const m = r.mealType || '加餐';
+    if (!groups[m]) groups[m] = [];
+    groups[m].push(r);
+  });
+
+  let html = '';
+  mealOrder.forEach(m => {
+    if (!groups[m] || groups[m].length === 0) return;
+    html += `<div style="padding:8px 0 4px;font-weight:600;color:#6b6458;font-size:13px">${m}</div>`;
+    groups[m].forEach(r => {
+      html += `
     <div class="food-item">
       <div class="info">
-        <div class="name">${r.mealType} · ${r.name} ${r.amount}${r.unit||'g'}</div>
+        <div class="name">${r.name} ${r.amount}${r.unit||'g'}</div>
         <div class="meta">蛋白${r.p}g · 碳水${r.c}g · 脂肪${r.f}g · 糖${r.sug}g · ${r.cal}kcal</div>
       </div>
       <div class="btns">
-        <button class="btn-sm btn-edit" onclick="editFood(${i})">✏️</button>
-        <button class="btn-sm btn-del" onclick="deleteFood(${i})">×</button>
+        <button class="btn-sm btn-edit" onclick="editFood(${r._idx})">✏️</button>
+        <button class="btn-sm btn-del" onclick="deleteFood(${r._idx})">×</button>
       </div>
-    </div>`).join('');
+    </div>`;
+    });
+  });
+  list.innerHTML = html;
 }
 
 function updateBar(key, value, min, max, unit, mode) {
@@ -327,32 +329,24 @@ function updateBar(key, value, min, max, unit, mode) {
   const targetEl = el.querySelector('.target');
   const diffEl = document.getElementById('diff-'+key);
   valEl.textContent = Math.round(value);
-
   if (mode === 'max') {
-    // 仅上限（钠、糖）：不超=绿，超=红
     targetEl.textContent = '/ ≤ ' + max + unit;
     const pct = Math.min(100, (value/max)*100);
     fillEl.style.width = pct + '%';
-    let cls, diffText;
-    if (value <= max) { cls='ok'; diffText='✅ 未超标'; }
-    else { cls='over'; diffText='已超出 ' + Math.round((value-max)*10)/10 + unit; }
-    fillEl.className = 'bar-fill ' + cls;
-    diffEl.textContent = diffText;
-    diffEl.className = 'diff ' + cls;
+    let cls, txt;
+    if (value <= max) { cls='ok'; txt='✅ 未超标'; }
+    else { cls='over'; txt='已超出 ' + Math.round((value-max)*10)/10 + unit; }
+    fillEl.className='bar-fill '+cls; diffEl.textContent=txt; diffEl.className='diff '+cls;
     return;
   }
-
-  // 区间（蛋白/碳水/脂肪/热量）：低于下限=黄，区间内=绿，超上限=红
   targetEl.textContent = '/ ' + min + '-' + max + unit;
   const pct = Math.min(100, (value/max)*100);
   fillEl.style.width = pct + '%';
-  let cls, diffText;
-  if (value < min) { cls='low'; diffText='还差 ' + Math.round((min-value)*10)/10 + unit; }
-  else if (value <= max) { cls='ok'; diffText='✅ 达标'; }
-  else { cls='over'; diffText='已超出 ' + Math.round((value-max)*10)/10 + unit; }
-  fillEl.className = 'bar-fill ' + cls;
-  diffEl.textContent = diffText;
-  diffEl.className = 'diff ' + cls;
+  let cls, txt;
+  if (value < min) { cls='low'; txt='还差 ' + Math.round((min-value)*10)/10 + unit; }
+  else if (value <= max) { cls='ok'; txt='✅ 达标'; }
+  else { cls='over'; txt='已超出 ' + Math.round((value-max)*10)/10 + unit; }
+  fillEl.className='bar-fill '+cls; diffEl.textContent=txt; diffEl.className='diff '+cls;
 }
 
 function viewHistory() {
@@ -361,6 +355,7 @@ function viewHistory() {
   const data = JSON.parse(localStorage.getItem('diet_'+date) || '[]');
   const view = document.getElementById('historyView');
   if (data.length === 0) { view.innerHTML = '<div class="empty">这天没有记录</div>'; return; }
+  const tgt = getTargets(date);
   const total = data.reduce((acc,r)=>({ p:acc.p+r.p, c:acc.c+r.c, f:acc.f+r.f, cal:acc.cal+r.cal, na:acc.na+r.na, sug:acc.sug+r.sug }),{p:0,c:0,f:0,cal:0,na:0,sug:0});
   view.innerHTML = data.map(r=>`
     <div class="food-item">
@@ -370,7 +365,8 @@ function viewHistory() {
       </div>
     </div>`).join('') +
     `<div style="padding:10px 0;font-weight:600;font-size:13px;border-top:1px solid #f5f2ed;margin-top:6px">
-      合计：蛋白${total.p.toFixed(1)}g · 碳水${total.c.toFixed(1)}g · 脂肪${total.f.toFixed(1)}g · 糖${total.sug}g · 钠${total.na}mg · ${total.cal}kcal
+      当天合计：蛋白${total.p.toFixed(1)}g · 碳水${total.c.toFixed(1)}g · 脂肪${total.f.toFixed(1)}g · 糖${total.sug.toFixed(1)}g · 钠${total.na}mg · ${total.cal}kcal<br>
+      <span style="color:#a0998e;font-weight:400">当天目标：蛋白${tgt.protein}-${tgt.proteinMax}g · 碳水${tgt.carbs}-${tgt.carbsMax}g · 热量${tgt.cal}-${tgt.calMax}kcal</span>
     </div>`;
 }
 
@@ -379,15 +375,15 @@ function weekSummary() {
   const days = [];
   for (let i = 0; i < 7; i++) {
     const d = new Date(); d.setDate(d.getDate() - i);
-    const data = JSON.parse(localStorage.getItem('diet_'+d.toISOString().slice(0,10)) || '[]');
+    const ds = d.toISOString().slice(0,10);
+    const data = JSON.parse(localStorage.getItem('diet_'+ds) || '[]');
     if (data.length === 0) continue;
     const t = data.reduce((a,r)=>({ p:a.p+r.p, cal:a.cal+r.cal, sug:a.sug+r.sug }),{p:0,cal:0,sug:0});
     days.push({ date:(d.getMonth()+1)+'/'+d.getDate(), p:t.p, cal:t.cal, sug:t.sug });
   }
   if (days.length === 0) { el.innerHTML = '最近7天还没有记录'; return; }
   days.reverse();
-  el.innerHTML = days.map(d=>`
-    <div class="summary-line"><span>${d.date}</span><span>蛋白${d.p.toFixed(0)}g · 糖${d.sug.toFixed(0)}g · ${d.cal.toFixed(0)}kcal</span></div>`).join('');
+  el.innerHTML = days.map(d=>`<div class="summary-line"><span>${d.date}</span><span>蛋白${d.p.toFixed(0)}g · 糖${d.sug.toFixed(0)}g · ${d.cal.toFixed(0)}kcal</span></div>`).join('');
 }
 
 function exportData() {
@@ -403,10 +399,10 @@ function exportAll() {
   const all = {};
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
-    if (k && k.startsWith('diet_')) { all[k] = JSON.parse(localStorage.getItem(k) || '[]'); }
+    if (k && (k.startsWith('diet_') || k.startsWith('targets_'))) { all[k] = localStorage.getItem(k); }
   }
   navigator.clipboard.writeText(JSON.stringify(all, null, 2)).then(()=>{
-    alert('已复制全部数据到剪贴板！可粘贴到备忘录/网盘备份');
+    alert('已复制全部数据到剪贴板！');
   }).catch(()=>{ prompt('手动复制：', JSON.stringify(all, null, 2)); });
 }
 
